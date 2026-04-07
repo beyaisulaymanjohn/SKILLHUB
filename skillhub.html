@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillHub — Gambia's Skilled Worker Agency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ── ROOT VARIABLES ── */
+:root {
+  --bg: #070708;
+  --surface: #0F0F11;
+  --card: #161618;
+  --card-hover: #1C1C1F;
+  --border: #222226;
+  --border-light: #2A2A2F;
+  --amber: #F59E0B;
+  --amber-light: #FCD34D;
+  --amber-dim: rgba(245,158,11,0.08);
+  --amber-glow: rgba(245,158,11,0.15);
+  --text: #EDEDF0;
+  --text-dim: #9999A8;
+  --muted: #555560;
+  --success: #22C55E;
+  --danger: #EF4444;
+  --radius: 10px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── TYPOGRAPHY ── */
+.display, h1, h2, h3, h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  line-height: 0.93;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
+
+/* ══════════════════════════════════
+   NAV
+══════════════════════════════════ */
+nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 900;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  background: rgba(7,7,8,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text);
+}
+.nav-logo span { color: var(--amber); }
+
+.nav-links { display: flex; gap: 6px; align-items: center; }
+
+.nav-btn {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.nav-btn:hover { border-color: var(--amber); color: var(--amber); }
+.nav-btn.accent {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #000;
+  font-weight: 600;
+}
+.nav-btn.accent:hover { background: var(--amber-light); }
+
+/* ══════════════════════════════════
+   PAGES
+══════════════════════════════════ */
+.page { display: none; min-height: 100vh; padding-top: 58px; }
+.page.active { display: block; }
+
+/* ══════════════════════════════════
+   HERO
+══════════════════════════════════ */
+.hero {
+  position: relative;
+  padding: 72px 40px 56px;
+  overflow: hidden;
+}
+
+/* Animated grid background */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 0%, black 40%, transparent 100%);
+}
+
+/* Amber glow orb */
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--amber-dim);
+  border: 1px solid rgba(245,158,11,0.22);
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 28px;
+  animation: fadeInDown 0.5s ease both;
+}
+
+.hero h1 {
+  font-size: clamp(56px, 9vw, 108px);
+  margin-bottom: 24px;
+  animation: fadeInDown 0.5s 0.1s ease both;
+}
+.hero h1 em { font-style: normal; color: var(--amber); }
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--text-dim);
+  max-width: 460px;
+  line-height: 1.65;
+  margin-bottom: 36px;
+  animation: fadeInDown 0.5s 0.2s ease both;
+  font-weight: 300;
+}
+
+/* ── SEARCH ── */
+.search-wrap {
+  max-width: 580px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 11px;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 56px;
+  animation: fadeInDown 0.5s 0.3s ease both;
+  box-shadow: 0 0 0 1px rgba(245,158,11,0);
+  transition: box-shadow 0.2s;
+}
+.search-wrap:focus-within { box-shadow: 0 0 0 2px rgba(245,158,11,0.25); border-color: rgba(245,158,11,0.4); }
+
+.search-wrap input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  padding: 8px 10px;
+}
+.search-wrap input::placeholder { color: var(--muted); }
+
+.search-btn {
+  background: var(--amber);
+  color: #000;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 7px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+.search-btn:hover { background: var(--amber-light); }
+
+/* ── HERO STATS ── */
+.hero-stats {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  padding-top: 40px;
+  animation: fadeInDown 0.5s 0.4s ease both;
+}
+
+.hero-stat {
+  flex: 1;
+  padding-right: 40px;
+  border-right: 1px solid var(--border);
+  margin-right: 40px;
+}
+.hero-stat:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+
+.stat-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--amber);
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ══════════════════════════════════
+   BROWSE SECTION
+══════════════════════════════════ */
+.browse {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 40px 100px;
+}
+
+.browse-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.browse-title { font-size: 30px; }
+
+.results-count { font-size: 13px; color: var(--muted); }
+
+/* ── FILTER PILLS ── */
+.filter-row {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.pill:hover { border-color: rgba(245,158,11,0.4); color: var(--amber); }
+.pill.active {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #000;
+  font-weight: 600;
+}
+
+/* ── WORKER GRID ── */
+.worker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 14px;
+}
+
+.worker-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  cursor: pointer;
+  transition: all 0.22s;
+  position: relative;
+  overflow: hidden;
+}
+
+.worker-card::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--amber);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.25s ease;
+}
+
+.worker-card:hover {
+  background: var(--card-hover);
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.worker-card:hover::after { transform: scaleY(1); }
+
+.card-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+
+.w-avatar {
+  width: 50px; height: 50px;
+  border-radius: 10px;
+  background: var(--amber-dim);
+  border: 1px solid rgba(245,158,11,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 19px; font-weight: 800;
+  color: var(--amber);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.w-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.w-info { flex: 1; min-width: 0; }
+.w-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px; font-weight: 800;
+  text-transform: uppercase; line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.w-primary-skill {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--amber); margin-top: 3px;
+}
+
+.w-rating {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 700; color: var(--text);
+}
+.w-rating .star { color: var(--amber); font-size: 13px; }
+
+.w-meta {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.w-meta-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-dim);
+}
+
+.w-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+.tag {
+  padding: 3px 9px; border-radius: 100px;
+  border: 1px solid var(--border-light);
+  font-size: 10px; font-weight: 500; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.w-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 14px; border-top: 1px solid var(--border);
+}
+
+.call-link {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--amber-dim);
+  border: 1px solid rgba(245,158,11,0.2);
+  color: var(--amber);
+  padding: 6px 13px; border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+  text-decoration: none; transition: all 0.18s;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.call-link:hover { background: var(--amber); color: #000; }
+
+.jobs-done { font-size: 11px; color: var(--muted); }
+.jobs-done span { color: var(--text-dim); font-weight: 600; }
+
+/* ══════════════════════════════════
+   MODALS
+══════════════════════════════════ */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  padding: 24px 20px;
+  overflow-y: auto;
+}
+.overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  width: 100%; max-width: 680px;
+  margin: auto;
+  overflow: hidden;
+  animation: modalIn 0.28s ease both;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(16px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-hdr {
+  padding: 28px 28px 0;
+  display: flex; align-items: flex-start; gap: 18px;
+}
+
+.modal-ava {
+  width: 76px; height: 76px; border-radius: 12px;
+  background: var(--amber-dim);
+  border: 1px solid rgba(245,158,11,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 800; color: var(--amber);
+  flex-shrink: 0; overflow: hidden;
+}
+.modal-ava img { width: 100%; height: 100%; object-fit: cover; }
+
+.modal-title-block { flex: 1; padding-top: 4px; }
+.modal-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px; font-weight: 800;
+  text-transform: uppercase; line-height: 1;
+}
+.modal-skill-line { color: var(--amber); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 5px; }
+.modal-loc { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
+
+.close-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--muted); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: all 0.18s;
+}
+.close-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+.modal-body { padding: 24px 28px 28px; }
+
+.modal-sec { margin-bottom: 24px; }
+.modal-sec-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.contact-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 20px; border-radius: 8px;
+  font-weight: 600; font-size: 13px;
+  text-decoration: none; cursor: pointer;
+  border: none; transition: all 0.18s;
+}
+.cta-call { background: var(--amber); color: #000; }
+.cta-call:hover { background: var(--amber-light); }
+.cta-wa {
+  background: rgba(37,211,102,0.1);
+  border: 1px solid rgba(37,211,102,0.25);
+  color: #25D366;
+}
+.cta-wa:hover { background: rgba(37,211,102,0.2); }
+
+.modal-bio { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+
+.work-portfolio {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.portfolio-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; aspect-ratio: 4/3;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 12px;
+  position: relative; overflow: hidden;
+}
+.portfolio-item img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.portfolio-icon { font-size: 24px; margin-bottom: 6px; }
+.portfolio-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.portfolio-desc { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ══════════════════════════════════
+   REGISTER PAGE
+══════════════════════════════════ */
+.reg-wrap {
+  max-width: 660px; margin: 0 auto;
+  padding: 60px 40px 100px;
+}
+
+.reg-hdr { margin-bottom: 48px; }
+.reg-hdr h2 { font-size: clamp(42px, 7vw, 72px); margin-bottom: 14px; }
+.reg-hdr p { font-size: 14px; color: var(--text-dim); line-height: 1.7; max-width: 480px; }
+
+/* ── STEP INDICATOR ── */
+.steps-row {
+  display: flex; align-items: center;
+  margin-bottom: 44px;
+}
+
+.step-node {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 8px; position: relative;
+}
+.step-node:not(:last-child)::after {
+  content: '';
+  position: absolute; top: 17px;
+  left: 58%; right: -42%;
+  height: 1px; background: var(--border);
+  transition: background 0.3s;
+}
+.step-node.done:not(:last-child)::after { background: var(--amber); }
+
+.step-circle {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--muted);
+  background: var(--bg); position: relative; z-index: 1;
+  transition: all 0.25s;
+}
+.step-node.active .step-circle { border-color: var(--amber); color: var(--amber); }
+.step-node.done .step-circle { background: var(--amber); border-color: var(--amber); color: #000; }
+
+.step-lbl {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted); transition: color 0.25s;
+}
+.step-node.active .step-lbl { color: var(--amber); }
+.step-node.done .step-lbl { color: var(--text-dim); }
+
+/* ── FORM STEPS ── */
+.form-step { display: none; animation: fadeInRight 0.3s ease both; }
+.form-step.active { display: block; }
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.fg { margin-bottom: 18px; }
+.fl {
+  display: block; font-size: 11px; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 7px;
+}
+.fi, .fta, .fse {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 11px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.18s;
+}
+.fi:focus, .fta:focus, .fse:focus { border-color: rgba(245,158,11,0.6); }
+.fi::placeholder { color: var(--muted); }
+.fta { resize: vertical; min-height: 100px; }
+.fse { cursor: pointer; }
+option { background: var(--surface); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Skills grid */
+.skill-picker {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px;
+}
+.sk-opt {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 10px;
+  text-align: center; cursor: pointer;
+  transition: all 0.18s; user-select: none;
+}
+.sk-opt:hover { border-color: rgba(245,158,11,0.35); }
+.sk-opt.picked {
+  background: var(--amber-dim);
+  border-color: rgba(245,158,11,0.5);
+}
+.sk-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+.sk-name { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); }
+.sk-opt.picked .sk-name { color: var(--amber); }
+
+/* Work entry */
+.work-entry {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px; margin-bottom: 10px;
+}
+.work-entry-hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.work-entry-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+}
+.remove-btn {
+  background: none; border: none; color: var(--muted);
+  font-size: 16px; cursor: pointer; transition: color 0.18s; padding: 2px;
+}
+.remove-btn:hover { color: var(--danger); }
+
+/* Review box */
+.review-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 22px; margin-bottom: 20px;
+}
+.review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.rv-item .rv-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+.rv-item .rv-val { font-size: 14px; font-weight: 500; }
+
+/* Checkbox */
+.check-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px;
+}
+.check-row input[type=checkbox] { margin-top: 2px; accent-color: var(--amber); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+.check-row label { font-size: 12px; color: var(--text-dim); line-height: 1.55; cursor: pointer; }
+
+/* Buttons */
+.btn-row { display: flex; gap: 10px; margin-top: 28px; }
+
+.btn {
+  padding: 11px 24px; border-radius: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; border: none; transition: all 0.18s;
+}
+.btn-primary { background: var(--amber); color: #000; }
+.btn-primary:hover { background: var(--amber-light); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-ghost {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+
+.add-work-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 8px;
+  background: var(--surface); border: 1px dashed var(--border-light);
+  color: var(--text-dim); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.18s; margin-bottom: 20px;
+}
+.add-work-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+/* Success */
+.success-panel {
+  display: none;
+  background: rgba(34,197,94,0.07);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 10px; padding: 20px 22px;
+  margin-bottom: 22px; color: var(--success);
+  font-size: 14px; font-weight: 500; line-height: 1.55;
+}
+.success-panel.show { display: block; }
+
+/* ══════════════════════════════════
+   ADMIN PAGE
+══════════════════════════════════ */
+.admin-wrap {
+  max-width: 1060px; margin: 0 auto;
+  padding: 56px 40px 100px;
+}
+
+.admin-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 36px;
+}
+.admin-top h2 { font-size: 48px; }
+.admin-sub { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+
+.tab-bar {
+  display: flex; gap: 4px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 9px; padding: 4px;
+  margin-bottom: 24px;
+}
+.tab-btn {
+  flex: 1; padding: 8px 16px; border-radius: 6px;
+  background: none; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--muted); cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.tab-btn.active { background: var(--card); color: var(--amber); }
+
+.count-badge {
+  background: var(--amber); color: #000;
+  border-radius: 100px; padding: 1px 8px;
+  font-size: 11px; font-weight: 700;
+}
+
+.admin-list { display: flex; flex-direction: column; gap: 10px; }
+
+.admin-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px 22px;
+  display: flex; align-items: center; gap: 16px;
+  transition: border-color 0.18s;
+}
+.admin-card:hover { border-color: var(--border-light); }
+
+.admin-ava {
+  width: 42px; height: 42px; border-radius: 8px;
+  background: var(--amber-dim); border: 1px solid rgba(245,158,11,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 800; color: var(--amber); flex-shrink: 0;
+}
+
+.admin-info { flex: 1; }
+.admin-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 800; text-transform: uppercase;
+}
+.admin-meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+.admin-actions { display: flex; gap: 8px; }
+
+.act-approve {
+  background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25);
+  color: var(--success); padding: 7px 14px; border-radius: 7px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s;
+}
+.act-approve:hover { background: var(--success); color: #000; }
+
+.act-reject {
+  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+  color: var(--danger); padding: 7px 14px; border-radius: 7px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s;
+}
+.act-reject:hover { background: var(--danger); color: #fff; }
+
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 9px; border-radius: 100px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-pending { background: rgba(245,158,11,0.1); color: var(--amber); }
+.badge-approved { background: rgba(34,197,94,0.1); color: var(--success); }
+.badge-rejected { background: rgba(239,68,68,0.1); color: var(--danger); }
+
+/* ── LOGIN MODAL ── */
+.login-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92); z-index: 1100;
+  align-items: center; justify-content: center;
+}
+.login-overlay.open { display: flex; }
+
+.login-box {
+  background: var(--surface); border: 1px solid var(--border-light);
+  border-radius: 16px; padding: 40px; width: 360px;
+  animation: modalIn 0.25s ease both;
+}
+.login-box h3 { font-size: 30px; margin-bottom: 8px; }
+.login-box .sub { font-size: 13px; color: var(--text-dim); margin-bottom: 28px; line-height: 1.55; }
+
+.login-error {
+  display: none; font-size: 12px; color: var(--danger);
+  margin-top: 10px; font-weight: 500;
+}
+
+/* ══════════════════════════════════
+   SHARED STATES
+══════════════════════════════════ */
+.spinner-wrap { display: flex; justify-content: center; padding: 60px; }
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty {
+  text-align: center; padding: 80px 40px;
+  color: var(--text-dim);
+}
+.empty-icon { font-size: 40px; margin-bottom: 16px; }
+.empty h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: var(--text); }
+.empty p { font-size: 13px; color: var(--muted); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 2000;
+  background: var(--card); border: 1px solid var(--border-light);
+  border-radius: 10px; padding: 13px 18px;
+  font-size: 13px; font-weight: 500;
+  opacity: 0; transform: translateY(12px);
+  transition: all 0.25s; pointer-events: none;
+  max-width: 320px;
+}
+#toast.on { opacity: 1; transform: translateY(0); }
+#toast.ok { border-color: rgba(34,197,94,0.4); color: var(--success); }
+#toast.err { border-color: rgba(239,68,68,0.4); color: var(--danger); }
+
+/* ══════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════ */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  .hero { padding: 40px 20px 40px; }
+  .hero h1 { font-size: 52px; }
+  .browse, .reg-wrap, .admin-wrap { padding-left: 20px; padding-right: 20px; }
+  .form-row { grid-template-columns: 1fr; }
+  .work-portfolio { grid-template-columns: repeat(2,1fr); }
+  .hero-stats { gap: 20px; }
+  .hero-stat { padding-right: 20px; margin-right: 20px; }
+  nav { padding: 0 16px; }
+  .nav-btn { display: none; }
+  .nav-btn.accent { display: flex; }
+  .admin-card { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     NAV
+══════════════════════════════════ -->
+<nav>
+  <div class="nav-logo" onclick="go('home')">SKILL<span>HUB</span></div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="go('home')">Browse Workers</button>
+    <button class="nav-btn accent" onclick="go('register')">Join as Worker</button>
+    <button class="nav-btn" onclick="openAdminLogin()">Admin ↗</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════
+     HOME PAGE
+══════════════════════════════════ -->
+<section id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">🇬🇲 &nbsp; The Gambia's Trusted Skill Agency</div>
+      <h1>FIND THE<br><em>RIGHT HAND</em><br>FOR THE JOB.</h1>
+      <p class="hero-sub">Verified, agency-registered skilled workers across The Gambia. Plumbers, electricians, carpenters, welders — all vetted and ready to work.</p>
+
+      <div class="search-wrap">
+        <input id="srch" type="text" placeholder="Search by name or skill (e.g. plumber, electrician…)" onkeydown="if(event.key==='Enter')doSearch()">
+        <button class="search-btn" onclick="doSearch()">Search</button>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="stat-val" id="stat-n">0</div>
+          <div class="stat-lbl">Verified Workers</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-val">10+</div>
+          <div class="stat-lbl">Skill Categories</div>
+        </div>
+        <div class="hero-stat">
+          <div class="stat-val">GBA</div>
+          <div class="stat-lbl">Greater Banjul Area</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="browse">
+    <div class="browse-header">
+      <h2 class="browse-title">WORKERS</h2>
+      <div class="results-count" id="rcount"></div>
+    </div>
+    <div class="filter-row" id="fpills">
+      <span class="pill active" onclick="filterBy('all',this)">All Skills</span>
+    </div>
+    <div id="wcontainer">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     REGISTER PAGE
+══════════════════════════════════ -->
+<section id="page-register" class="page">
+  <div class="reg-wrap">
+    <div class="reg-hdr">
+      <h2>JOIN OUR<br><em style="font-style:normal;color:var(--amber)">AGENCY</em></h2>
+      <p>Register as a verified skilled worker and get discovered by clients across The Gambia. Our team reviews and approves every application to maintain quality.</p>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps-row">
+      <div class="step-node active" id="sn1"><div class="step-circle">1</div><div class="step-lbl">Personal</div></div>
+      <div class="step-node" id="sn2"><div class="step-circle">2</div><div class="step-lbl">Skills</div></div>
+      <div class="step-node" id="sn3"><div class="step-circle">3</div><div class="step-lbl">Portfolio</div></div>
+      <div class="step-node" id="sn4"><div class="step-circle">4</div><div class="step-lbl">Submit</div></div>
+    </div>
+
+    <div id="reg-ok" class="success-panel">
+      ✓ &nbsp; Application received! Our team will review your profile and contact you within 24–48 hours.
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="form-step active" id="fs1">
+      <div class="form-row">
+        <div class="fg"><label class="fl">Full Name *</label><input class="fi" id="rn" placeholder="Your full name"></div>
+        <div class="fg"><label class="fl">Phone Number *</label><input class="fi" id="rp" type="tel" placeholder="+220 7XX XXXX"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="re" type="email" placeholder="you@email.com"></div>
+        <div class="fg"><label class="fl">Area / Location *</label><input class="fi" id="rl" placeholder="e.g. Serrekunda, Bakau"></div>
+      </div>
+      <div class="fg" style="max-width:260px"><label class="fl">Years of Experience *</label><input class="fi" id="rx" type="number" min="0" max="60" placeholder="e.g. 5"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goStep(2)">Next: Select Skills →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="form-step" id="fs2">
+      <div class="fg">
+        <label class="fl">Your Skills — pick all that apply *</label>
+        <div class="skill-picker" id="spicker"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goStep(3)">Next: Portfolio →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="form-step" id="fs3">
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:18px;line-height:1.6">
+        Add examples of past work. Clients can see these to build trust in your skills. (Optional but recommended.)
+      </p>
+      <div id="we-list"></div>
+      <button class="add-work-btn" onclick="addWorkEntry()">＋ Add Work Example</button>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="goStep(4)">Next: Review & Submit →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="form-step" id="fs4">
+      <div class="review-box" id="rev-box"></div>
+      <div class="fg">
+        <label class="fl">Short Bio / About You *</label>
+        <textarea class="fta" id="rbio" placeholder="Tell clients about your experience, work ethic, and what makes you stand out…"></textarea>
+      </div>
+      <div class="fg">
+        <div class="check-row">
+          <input type="checkbox" id="ragree">
+          <label for="ragree">I confirm that all information is accurate and I agree to SkillHub's terms. I understand my profile is subject to approval and may be removed for violations.</label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(3)">← Back</button>
+        <button class="btn btn-primary" id="sbtn" onclick="submitApp()">Submit Application ✓</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     ADMIN PAGE
+══════════════════════════════════ -->
+<section id="page-admin" class="page">
+  <div class="admin-wrap">
+    <div class="admin-top">
+      <div>
+        <h2>ADMIN<br><em style="font-style:normal;color:var(--amber)">PANEL</em></h2>
+        <div class="admin-sub">Manage worker registrations and profiles</div>
+      </div>
+      <button class="nav-btn" onclick="adminOut()">Log Out</button>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-pending" onclick="switchTab('pending',this)">
+        Pending <span class="count-badge" id="pcnt">0</span>
+      </button>
+      <button class="tab-btn" id="tab-approved" onclick="switchTab('approved',this)">Approved</button>
+      <button class="tab-btn" id="tab-rejected" onclick="switchTab('rejected',this)">Rejected</button>
+    </div>
+
+    <div id="adminContent">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     PROFILE MODAL
+══════════════════════════════════ -->
+<div class="overlay" id="profModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-ava" id="mAva"></div>
+      <div class="modal-title-block">
+        <div class="modal-name" id="mName"></div>
+        <div class="modal-skill-line" id="mSkill"></div>
+        <div class="modal-loc" id="mLoc"></div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-sec">
+        <div class="modal-sec-title">Contact Worker</div>
+        <div class="contact-btns" id="mContact"></div>
+      </div>
+      <div class="modal-sec">
+        <div class="modal-sec-title">About</div>
+        <div class="modal-bio" id="mBio"></div>
+      </div>
+      <div class="modal-sec">
+        <div class="modal-sec-title">Skills</div>
+        <div class="w-tags" id="mTags"></div>
+      </div>
+      <div class="modal-sec">
+        <div class="modal-sec-title">Past Work / Portfolio</div>
+        <div class="work-portfolio" id="mPortfolio"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ADMIN LOGIN MODAL
+══════════════════════════════════ -->
+<div class="login-overlay" id="loginModal">
+  <div class="login-box">
+    <h3>ADMIN<br><em style="font-style:normal;color:var(--amber)">LOGIN</em></h3>
+    <div class="sub">Enter your admin credentials to access the management dashboard.</div>
+    <div class="fg">
+      <label class="fl">Password</label>
+      <input class="fi" id="apw" type="password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')tryLogin()">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeLogin()">Cancel</button>
+      <button class="btn btn-primary" onclick="tryLogin()">Login →</button>
+    </div>
+    <div class="login-error" id="lerr">❌ Incorrect password.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+/* ══════════════════════════════════
+   ⚙️  CONFIG — Edit these values
+══════════════════════════════════ */
+const CFG = {
+  supabaseUrl:  'YOUR_SUPABASE_URL',   // e.g. https://xxxx.supabase.co
+  supabaseKey:  'YOUR_SUPABASE_ANON_KEY',
+  adminPass:    'admin2024',           // Change this to a strong password!
+};
+
+/* ══════════════════════════════════
+   SKILL CATEGORIES
+══════════════════════════════════ */
+const SKILLS = [
+  { id:1,  name:'Plumbing',     icon:'🔧' },
+  { id:2,  name:'Electrical',   icon:'⚡' },
+  { id:3,  name:'Carpentry',    icon:'🪚' },
+  { id:4,  name:'Masonry',      icon:'🧱' },
+  { id:5,  name:'Painting',     icon:'🎨' },
+  { id:6,  name:'Roofing',      icon:'🏠' },
+  { id:7,  name:'Tiling',       icon:'⬜' },
+  { id:8,  name:'Welding',      icon:'🔩' },
+  { id:9,  name:'AC/HVAC',      icon:'❄️' },
+  { id:10, name:'Security',     icon:'🔐' },
+  { id:11, name:'Landscaping',  icon:'🌿' },
+  { id:12, name:'General Labour',icon:'🛠️' },
+];
+
+/* ══════════════════════════════════
+   DEMO DATA (shown when no Supabase)
+══════════════════════════════════ */
+const DEMO = [
+  { id:'1', name:'Modou Jallow', phone:'+220 700 1234', email:'', bio:'Expert plumber with 10 years of experience in residential and commercial projects. Fast, reliable, affordable. Available 7 days a week.', location:'Serrekunda', years_experience:10, status:'approved', completed_jobs:87, skills:['Plumbing','Roofing'], work_history:[{title:'Bathroom Overhaul',description:'Full replumb + new fixtures',category:'Plumbing'},{title:'Roof Drainage Fix',description:'Gutter repair and sealing',category:'Roofing'},{title:'Kitchen Pipes',description:'New supply lines installed',category:'Plumbing'}] },
+  { id:'2', name:'Fatou Ceesay', phone:'+220 770 5678', email:'', bio:'Professional interior and exterior painter. I use premium quality paint and take great pride in my clean, streak-free finishes.', location:'Bakau', years_experience:6, status:'approved', completed_jobs:54, skills:['Painting'], work_history:[{title:'Office Repaint',description:'Full interior, 4 rooms',category:'Painting'},{title:'Villa Exterior',description:'Weatherproof coat applied',category:'Painting'}] },
+  { id:'3', name:'Omar Sanyang', phone:'+220 720 9012', email:'', bio:'Certified electrician specialising in wiring, solar panel installations, and repairs. Available for residential and commercial jobs.', location:'Brikama', years_experience:12, status:'approved', completed_jobs:120, skills:['Electrical','AC/HVAC'], work_history:[{title:'5kW Solar Install',description:'Full panel + inverter setup',category:'Electrical'},{title:'Shop Rewire',description:'Commercial grade rewiring',category:'Electrical'},{title:'AC Installation',description:'3 split units, all rooms',category:'AC/HVAC'}] },
+  { id:'4', name:'Lamin Touray', phone:'+220 780 3456', email:'', bio:'Skilled carpenter and furniture maker. Custom wardrobes, doors, kitchen cabinets, and all types of woodwork delivered to spec.', location:'Latrikunda', years_experience:8, status:'approved', completed_jobs:63, skills:['Carpentry'], work_history:[{title:'Built-in Wardrobe',description:'Floor-to-ceiling bedroom unit',category:'Carpentry'},{title:'Kitchen Cabinets',description:'Full set, 14 units',category:'Carpentry'}] },
+  { id:'5', name:'Aminata Dibba', phone:'+220 750 7890', email:'', bio:'Expert mason and tiler with 9 years of experience. Precision brickwork, plastering, and tiling for homes and commercial properties.', location:'Sukuta', years_experience:9, status:'approved', completed_jobs:44, skills:['Masonry','Tiling'], work_history:[{title:'Compound Wall',description:'Full perimeter boundary',category:'Masonry'},{title:'House Floor Tiling',description:'800sqm of ceramic tiles',category:'Tiling'}] },
+  { id:'6', name:'Baba Sowe', phone:'+220 760 2345', email:'', bio:'Professional welder and metal fabricator. Gates, security grills, roofing frames, railings — all types of metalwork done right.', location:'Kanifing', years_experience:15, status:'approved', completed_jobs:98, skills:['Welding','Roofing'], work_history:[{title:'Custom Steel Gate',description:'Double-panel driveway gate',category:'Welding'},{title:'Window Grills x12',description:'Security grills, all windows',category:'Welding'},{title:'Roof Frame',description:'Full steel truss structure',category:'Roofing'}] },
+  // Pending demo entries
+  { id:'p1', name:'Isatou Sillah', phone:'+220 710 1111', email:'isatou@ex.com', bio:'', location:'Banjul', years_experience:3, status:'pending', completed_jobs:0, skills:['Painting','General Labour'], work_history:[] },
+  { id:'p2', name:'Kebba Gaye',    phone:'+220 720 2222', email:'kebba@ex.com',  bio:'', location:'Fajara',  years_experience:7, status:'pending', completed_jobs:0, skills:['Electrical','Security'], work_history:[] },
+];
+
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
+let sb = null;
+let useDemo = true;
+let workers = [];
+let adminWorkers = [];
+let curFilter = 'all';
+let curStep = 1;
+let pickedSkills = [];
+let weCount = 0;
+let adminTab = 'pending';
+let adminAuth = false;
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+function init() {
+  try {
+    if (CFG.supabaseUrl !== 'YOUR_SUPABASE_URL') {
+      sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey);
+      useDemo = false;
+    }
+  } catch(e) { console.warn('Supabase unavailable, demo mode.'); }
+
+  buildPills();
+  buildSkillPicker();
+  fetchWorkers();
+}
+
+/* ══════════════════════════════════
+   NAVIGATION
+══════════════════════════════════ */
+function go(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  window.scrollTo({ top:0 });
+}
+
+/* ══════════════════════════════════
+   FILTER PILLS
+══════════════════════════════════ */
+function buildPills() {
+  const row = document.getElementById('fpills');
+  SKILLS.forEach(s => {
+    const p = document.createElement('span');
+    p.className = 'pill';
+    p.textContent = s.icon + ' ' + s.name;
+    p.onclick = () => filterBy(s.name, p);
+    row.appendChild(p);
+  });
+}
+
+function filterBy(cat, el) {
+  curFilter = cat;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderWorkers();
+}
+
+/* ══════════════════════════════════
+   FETCH WORKERS
+══════════════════════════════════ */
+async function fetchWorkers(search = '') {
+  document.getElementById('wcontainer').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  try {
+    if (!useDemo && sb) {
+      let q = sb.from('workers').select('*,worker_skills(category_id),work_history(*)').eq('status','approved');
+      if (search) q = q.ilike('name','%' + search + '%');
+      const { data, error } = await q;
+      if (error) throw error;
+      workers = (data||[]).map(w => ({
+        ...w,
+        skills: (w.worker_skills||[]).map(s => SKILLS.find(c=>c.id===s.category_id)?.name).filter(Boolean),
+        work_history: w.work_history || []
+      }));
+    } else {
+      await delay(350);
+      workers = DEMO.filter(w => w.status==='approved' && (
+        !search || w.name.toLowerCase().includes(search.toLowerCase()) ||
+        (w.skills||[]).some(s => s.toLowerCase().includes(search.toLowerCase()))
+      ));
+    }
+  } catch(e) {
+    workers = DEMO.filter(w=>w.status==='approved');
+    console.error(e);
+  }
+
+  renderWorkers();
+  animateStat('stat-n', workers.length);
+}
+
+function doSearch() {
+  fetchWorkers(document.getElementById('srch').value.trim());
+}
+
+/* ══════════════════════════════════
+   RENDER WORKERS
+══════════════════════════════════ */
+function renderWorkers() {
+  const list = curFilter === 'all'
+    ? workers
+    : workers.filter(w => (w.skills||[]).some(s=>s===curFilter));
+
+  const box = document.getElementById('wcontainer');
+  const rc = document.getElementById('rcount');
+  rc.textContent = list.length + ' worker' + (list.length!==1?'s':'') + ' found';
+
+  if (!list.length) {
+    box.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>No Workers Found</h3><p>Try a different skill or search term.</p></div>`;
+    return;
+  }
+
+  box.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'worker-grid';
+
+  list.forEach(w => {
+    const ini = initials(w.name);
+    const pri = (w.skills||[])[0] || 'Skilled Worker';
+    const card = document.createElement('div');
+    card.className = 'worker-card';
+    card.onclick = () => openProfile(w);
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="w-avatar">${ini}</div>
+        <div class="w-info">
+          <div class="w-name">${w.name}</div>
+          <div class="w-primary-skill">${pri}</div>
+        </div>
+        <div class="w-rating"><span class="star">★</span>${w.rating ? parseFloat(w.rating).toFixed(1) : '5.0'}</div>
+      </div>
+      <div class="w-meta">
+        <span class="w-meta-item">📍 ${w.location||'Gambia'}</span>
+        <span class="w-meta-item">🛠 ${w.years_experience||0} yrs</span>
+        ${w.completed_jobs ? `<span class="w-meta-item">✅ ${w.completed_jobs} jobs</span>` : ''}
+      </div>
+      <div class="w-tags">${(w.skills||[]).map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+      <div class="w-footer">
+        <span class="jobs-done"><span>${(w.work_history||[]).length}</span> portfolio items</span>
+        <a class="call-link" href="tel:${w.phone}" onclick="event.stopPropagation()">📞 Call</a>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  box.appendChild(grid);
+}
+
+/* ══════════════════════════════════
+   PROFILE MODAL
+══════════════════════════════════ */
+function openProfile(w) {
+  document.getElementById('mAva').textContent = initials(w.name);
+  document.getElementById('mName').textContent = w.name;
+  document.getElementById('mSkill').textContent = (w.skills||[]).join(' · ') || 'Skilled Worker';
+  document.getElementById('mLoc').textContent = '📍 ' + (w.location || 'The Gambia');
+  document.getElementById('mBio').textContent = w.bio || 'No bio provided yet.';
+  document.getElementById('mContact').innerHTML = `
+    <a class="cta-btn cta-call" href="tel:${w.phone}">📞 ${w.phone}</a>
+    <a class="cta-btn cta-wa" href="https://wa.me/${w.phone.replace(/\D/g,'')}" target="_blank">💬 WhatsApp</a>`;
+  document.getElementById('mTags').innerHTML = (w.skills||[]).map(s=>`<span class="tag">${s}</span>`).join('') || '<span style="color:var(--muted)">None listed</span>';
+
+  const ph = document.getElementById('mPortfolio');
+  const wh = w.work_history || [];
+  if (!wh.length) {
+    ph.innerHTML = '<p style="color:var(--muted);font-size:13px;grid-column:1/-1">No portfolio items added yet.</p>';
+  } else {
+    const cat = SKILLS.find(c=>(w.skills||[]).includes(c.name));
+    ph.innerHTML = wh.map(item=>`
+      <div class="portfolio-item">
+        <div class="portfolio-icon">${cat?.icon||'🔨'}</div>
+        <div class="portfolio-label">${item.title}</div>
+        <div class="portfolio-desc">${item.description||''}</div>
+      </div>`).join('');
+  }
+
+  document.getElementById('profModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('profModal')) return;
+  document.getElementById('profModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════════
+   REGISTRATION
+══════════════════════════════════ */
+function buildSkillPicker() {
+  const g = document.getElementById('spicker');
+  SKILLS.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'sk-opt';
+    d.dataset.name = s.name;
+    d.innerHTML = `<span class="sk-icon">${s.icon}</span><div class="sk-name">${s.name}</div>`;
+    d.onclick = () => {
+      d.classList.toggle('picked');
+      pickedSkills = Array.from(document.querySelectorAll('.sk-opt.picked')).map(el=>el.dataset.name);
+    };
+    g.appendChild(d);
+  });
+}
+
+function goStep(n) {
+  // Validation
+  if (n > curStep) {
+    if (curStep===1) {
+      if (!v('rn')||!v('rp')||!v('rl')||!v('rx')) { toast('Please fill in all required fields.','err'); return; }
+    }
+    if (curStep===2 && pickedSkills.length===0) { toast('Please select at least one skill.','err'); return; }
+    if (n===4) buildReview();
+  }
+
+  document.getElementById('fs'+curStep).classList.remove('active');
+  for(let i=1;i<=4;i++){
+    const nd = document.getElementById('sn'+i);
+    nd.classList.remove('active','done');
+    if(i<n) nd.classList.add('done');
+    if(i===n) nd.classList.add('active');
+  }
+  curStep = n;
+  document.getElementById('fs'+n).classList.add('active');
+  window.scrollTo({top:120,behavior:'smooth'});
+}
+
+function buildReview() {
+  document.getElementById('rev-box').innerHTML = `
+    <div class="review-grid">
+      <div class="rv-item"><div class="rv-lbl">Name</div><div class="rv-val">${v('rn')}</div></div>
+      <div class="rv-item"><div class="rv-lbl">Phone</div><div class="rv-val">${v('rp')}</div></div>
+      <div class="rv-item"><div class="rv-lbl">Location</div><div class="rv-val">${v('rl')}</div></div>
+      <div class="rv-item"><div class="rv-lbl">Experience</div><div class="rv-val">${v('rx')} years</div></div>
+      <div class="rv-item" style="grid-column:1/-1">
+        <div class="rv-lbl">Skills</div>
+        <div class="w-tags" style="margin-top:6px">${pickedSkills.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
+let weN = 0;
+function addWorkEntry() {
+  weN++;
+  const n = weN;
+  const li = document.getElementById('we-list');
+  const d = document.createElement('div');
+  d.className = 'work-entry';
+  d.id = 'we-'+n;
+  d.innerHTML = `
+    <div class="work-entry-hdr">
+      <div class="work-entry-title">Example #${n}</div>
+      <button class="remove-btn" onclick="this.closest('.work-entry').remove()">✕</button>
+    </div>
+    <div class="fg"><label class="fl">Job Title</label><input class="fi we-t" placeholder="e.g. Bathroom plumbing repair"></div>
+    <div class="form-row">
+      <div class="fg"><label class="fl">Description</label><input class="fi we-d" placeholder="Brief description of what you did"></div>
+      <div class="fg"><label class="fl">Category</label><select class="fse we-c">${SKILLS.map(s=>`<option value="${s.name}">${s.icon} ${s.name}</option>`).join('')}</select></div>
+    </div>`;
+  li.appendChild(d);
+}
+
+function getWorkEntries() {
+  return Array.from(document.querySelectorAll('.work-entry')).map(el=>({
+    title: el.querySelector('.we-t').value,
+    description: el.querySelector('.we-d').value,
+    category: el.querySelector('.we-c').value,
+  })).filter(e=>e.title.trim());
+}
+
+async function submitApp() {
+  const bio = document.getElementById('rbio').value.trim();
+  if (!bio) { toast('Please write a short bio.','err'); return; }
+  if (!document.getElementById('ragree').checked) { toast('Please accept the terms.','err'); return; }
+
+  const btn = document.getElementById('sbtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const payload = {
+    name: v('rn'), phone: v('rp'), email: v('re'),
+    location: v('rl'), years_experience: parseInt(v('rx')),
+    bio, status: 'pending', skills: pickedSkills, work_history: getWorkEntries(),
+  };
+
+  try {
+    if (!useDemo && sb) {
+      const { data: wk, error } = await sb.from('workers').insert([{
+        name:payload.name, phone:payload.phone, email:payload.email,
+        location:payload.location, years_experience:payload.years_experience,
+        bio:payload.bio, status:'pending'
+      }]).select().single();
+      if (error) throw error;
+
+      if (pickedSkills.length) {
+        const rows = pickedSkills.map(s=>{
+          const c = SKILLS.find(x=>x.name===s);
+          return c ? { worker_id:wk.id, category_id:c.id } : null;
+        }).filter(Boolean);
+        if (rows.length) await sb.from('worker_skills').insert(rows);
+      }
+
+      const wh = getWorkEntries();
+      if (wh.length) {
+        await sb.from('work_history').insert(wh.map(e=>({...e, worker_id:wk.id})));
+      }
+    } else {
+      await delay(700);
+    }
+
+    document.getElementById('reg-ok').classList.add('show');
+    document.querySelectorAll('.form-step').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.step-node').forEach(s=>{ s.classList.remove('active'); s.classList.add('done'); });
+    toast('Application submitted successfully!','ok');
+
+    setTimeout(resetForm, 6000);
+  } catch(e) {
+    console.error(e);
+    toast('Submission failed. Please try again.','err');
+    btn.disabled = false; btn.textContent = 'Submit Application ✓';
+  }
+}
+
+function resetForm() {
+  document.getElementById('reg-ok').classList.remove('show');
+  pickedSkills = []; curStep = 1; weN = 0;
+  document.querySelectorAll('.fi,.fta').forEach(el=>el.value='');
+  document.querySelectorAll('.sk-opt').forEach(el=>el.classList.remove('picked'));
+  document.getElementById('we-list').innerHTML = '';
+  document.querySelectorAll('.step-node').forEach((nd,i)=>{ nd.classList.remove('done','active'); if(i===0) nd.classList.add('active'); });
+  document.getElementById('fs1').classList.add('active');
+  document.getElementById('sbtn').disabled = false;
+  document.getElementById('sbtn').textContent = 'Submit Application ✓';
+}
+
+/* ══════════════════════════════════
+   ADMIN
+══════════════════════════════════ */
+function openAdminLogin() {
+  if (adminAuth) { go('admin'); return; }
+  document.getElementById('loginModal').classList.add('open');
+  setTimeout(()=>document.getElementById('apw').focus(), 100);
+}
+function closeLogin() {
+  document.getElementById('loginModal').classList.remove('open');
+  document.getElementById('lerr').style.display='none';
+  document.getElementById('apw').value='';
+}
+function tryLogin() {
+  if (document.getElementById('apw').value === CFG.adminPass) {
+    adminAuth = true; closeLogin(); go('admin'); loadAdmin();
+  } else {
+    document.getElementById('lerr').style.display='block';
+  }
+}
+function adminOut() { adminAuth = false; go('home'); }
+
+async function loadAdmin() {
+  document.getElementById('adminContent').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  try {
+    if (!useDemo && sb) {
+      const { data, error } = await sb.from('workers')
+        .select('*,worker_skills(category_id),work_history(*)')
+        .order('created_at',{ascending:false});
+      if (error) throw error;
+      adminWorkers = (data||[]).map(w=>({
+        ...w,
+        skills:(w.worker_skills||[]).map(s=>SKILLS.find(c=>c.id===s.category_id)?.name).filter(Boolean),
+        work_history: w.work_history||[]
+      }));
+    } else {
+      await delay(300);
+      adminWorkers = [...DEMO];
+    }
+  } catch(e) { adminWorkers = [...DEMO]; }
+
+  updatePendingCount();
+  renderAdmin();
+}
+
+function switchTab(t, el) {
+  adminTab = t;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderAdmin();
+}
+
+function renderAdmin() {
+  const list = adminWorkers.filter(w=>w.status===adminTab);
+  const box = document.getElementById('adminContent');
+
+  if (!list.length) {
+    box.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><h3>All Clear</h3><p>No ${adminTab} workers.</p></div>`;
+    return;
+  }
+
+  box.innerHTML = '<div class="admin-list">' + list.map(w=>`
+    <div class="admin-card" id="ac-${w.id}">
+      <div class="admin-ava">${initials(w.name)}</div>
+      <div class="admin-info">
+        <div class="admin-name">${w.name}</div>
+        <div class="admin-meta">
+          <span>📞 ${w.phone}</span>
+          <span>📍 ${w.location||'N/A'}</span>
+          <span>🛠 ${(w.skills||[]).join(', ')||'Unknown'}</span>
+          <span>${w.years_experience||0} yrs exp</span>
+          <span class="badge badge-${w.status}">${w.status}</span>
+        </div>
+      </div>
+      <div class="admin-actions">
+        ${w.status!=='approved' ? `<button class="act-approve" onclick="setStatus('${w.id}','approved')">✓ Approve</button>` : ''}
+        ${w.status!=='rejected' ? `<button class="act-reject" onclick="setStatus('${w.id}','rejected')">✕ Reject</button>` : ''}
+        ${w.status==='rejected' ? `<button class="act-approve" onclick="setStatus('${w.id}','approved')">↩ Restore</button>` : ''}
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+async function setStatus(id, status) {
+  try {
+    if (!useDemo && sb) {
+      const { error } = await sb.from('workers').update({status}).eq('id',id);
+      if (error) throw error;
+    }
+    const w = adminWorkers.find(x=>x.id==id);
+    if (w) w.status = status;
+    updatePendingCount();
+    renderAdmin();
+    fetchWorkers();
+    toast(`Worker ${status==='approved'?'approved ✓':'rejected'}.`, status==='approved'?'ok':'err');
+  } catch(e) { toast('Failed to update.','err'); }
+}
+
+function updatePendingCount() {
+  document.getElementById('pcnt').textContent = adminWorkers.filter(w=>w.status==='pending').length;
+}
+
+/* ══════════════════════════════════
+   UTILS
+══════════════════════════════════ */
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function initials(name) { return (name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2); }
+function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+let _toast;
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = (type==='ok'?'✓ ':'⚠ ') + msg;
+  el.className = 'on ' + type;
+  clearTimeout(_toast);
+  _toast = setTimeout(()=>el.className='', 3500);
+}
+
+function animateStat(id, target) {
+  const el = document.getElementById(id);
+  let n = 0;
+  const iv = setInterval(()=>{
+    n = Math.min(n+1, target);
+    el.textContent = n;
+    if(n>=target) clearInterval(iv);
+  }, 40);
+}
+
+/* ══════════════════════════════════
+   BOOT
+══════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
