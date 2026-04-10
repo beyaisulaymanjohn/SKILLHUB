@@ -768,7 +768,7 @@ let uploadedFiles = {photo:null, id:null, cert:[], port:[]};
 /* ── INIT ── */
 async function init() {
   try {
-    if (CFG.supabaseUrl !== 'YOUR_SUPABASE_URL') {
+    if (CFG.supabaseUrl !== 'https://lhzlqzpkqdppgnesitwo.supabase.co') {
       sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey);
       useDemo = false;
     }
