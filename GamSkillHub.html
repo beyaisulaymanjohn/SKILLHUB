@@ -636,7 +636,7 @@ const WC={}; // worker cache — avoids JSON in onclick
 /* ══ INIT ══ */
 async function init() {
   try {
-    if(CFG.supabaseUrl!=='https://lhzlqzpkqdppgnesitwo.supabase.co'){
+    if(CFG.supabaseUrl!=='supabaseUrl'){
       SB=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
       DEMO=false;
     }
