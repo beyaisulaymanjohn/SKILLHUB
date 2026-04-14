@@ -315,7 +315,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
   <div class="logo" onclick="nav('home')"><span class="r">GAM</span><span class="a">SKILL</span>HUB</div>
   <div class="nl">
     <button class="nb" onclick="nav('home')">Browse</button>
-    <button class="nb bl" onclick="nav('client')">📋 Book a Worker</button>
+    <button class="nb bl" onclick="nav('client')">📋 Place Order</button>
     <button class="nb" onclick="nav('wportal')">👷 Worker Login</button>
     <button class="nb ac" onclick="nav('register')">Join as Worker</button>
     <button class="nb" onclick="openAdminLogin()">Admin ↗</button>
@@ -326,7 +326,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <section id="pg-home" class="pg on">
   <div class="hero">
     <div class="hi">
-      <div class="htag">🇬🇲 &nbsp; THE GAMBIAN HOME FOR SKILLED WORKER</div>
+      <div class="htag">🇬🇲 &nbsp; The Gambia's #1 Skill Agency</div>
       <h1>FIND THE<br><em>RIGHT HAND</em><br>FOR THE JOB.</h1>
       <p class="hsub">Verified agency-registered skilled workers across The Gambia. Plumbers, electricians, cleaners, barbers — all vetted and ready.</p>
       <div class="sw">
@@ -350,7 +350,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <!-- ═══ CLIENT PORTAL ═══ -->
 <section id="pg-client" class="pg">
   <div class="pwrap">
-    <div class="phd"><h2>CLIENT<br><em style="font-style:normal;color:var(--am)">PORTAL</em></h2><p>BOOK A WORKER, track bookings, rate workers.</p></div>
+    <div class="phd"><h2>CLIENT<br><em style="font-style:normal;color:var(--am)">PORTAL</em></h2><p>Place orders, track bookings, rate workers.</p></div>
     <div id="cl-auth">
       <div class="frow" style="max-width:480px">
         <div class="fg"><label class="fl">Your Name *</label><input class="fi" id="cl-name" placeholder="Full name"></div>
@@ -370,7 +370,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       </div>
       <div id="cl-order-tab">
         <div style="background:var(--card);border:1px solid var(--b);border-radius:11px;padding:22px;margin-bottom:20px">
-          <div class="shtit">BOOK WORKER</div>
+          <div class="shtit">PLACE AN ORDER</div>
           <div class="frow">
             <div class="fg"><label class="fl">Skill Needed *</label><select class="fse" id="ord-skill"><option value="">Select…</option></select></div>
             <div class="fg"><label class="fl">Preferred Date/Time</label><input class="fi" id="ord-dt" type="datetime-local"></div>
@@ -589,9 +589,9 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 const CFG = {
   supabaseUrl: 'https://lhzlqzpkqdppgnesitwo.supabase.co',
   supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoemxxenBrcWRwcGduZXNpdHdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjY0ODEsImV4cCI6MjA5MTE0MjQ4MX0.zEqZv9O5LuC8Ma5mMQSGycwxnwXa4l7aL7dIZ6_Cosg',
-  adm-em: 'beyaisulaymanjohn@gmail.com',
-  adm-pw: '2468'
-  
+  adminEmail:  'beyaisulaymanjohn@gmail.com',   // ← change to your email
+  adminPass:   '2468',             // ← change to your password
+  adminName:   'Agency Admin',
 };
 
 /* ══ SKILLS ══ */
@@ -639,7 +639,7 @@ const WC={}; // worker cache — avoids JSON in onclick
 /* ══ INIT ══ */
 async function init() {
   try {
-    if(CFG.supabaseUrl!=='supabaseUrl'){
+    if(CFG.supabaseUrl!=='YOUR_SUPABASE_URL'){
       SB=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
       DEMO=false;
     }
@@ -1187,7 +1187,7 @@ async function tryLogin(){
   try{
     let adm=null;
     if(!DEMO&&SB){const {data}=await SB.from('admin_users').select('*').eq('email',em).eq('password',pw).maybeSingle();adm=data;}
-    else if(pw==='Admin@2024!'){adm={name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin'};}
+    else if(em===CFG.adminEmail&&pw===CFG.adminPass){adm={name:CFG.adminName,email:CFG.adminEmail,role:'super_admin'};}
     if(!adm){document.getElementById('lerr').style.display='block';return;}
     adminUser=adm;
     document.getElementById('adm-who').textContent=adm.name+' ('+adm.role+')';
