@@ -31,9 +31,10 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 
 /* HERO */
 .hero{position:relative;padding:60px 38px 44px;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--b) 1px,transparent 1px),linear-gradient(90deg,var(--b) 1px,transparent 1px);background-size:40px 40px;opacity:.28;mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,black 40%,transparent 100%)}
-.hero::after{content:'';position:absolute;top:-60px;right:-60px;width:480px;height:480px;background:radial-gradient(circle,rgba(245,158,11,.055) 0%,transparent 65%);pointer-events:none}
-.hi{position:relative;max-width:1160px;margin:0 auto}
+.hero-img{position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1400&q=80&fit=crop') center/cover no-repeat;opacity:.15;pointer-events:none}
+.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(206,17,38,.22) 0%,rgba(7,7,8,.80) 40%,rgba(7,7,8,.97) 100%);pointer-events:none;z-index:1}
+.hero::after{content:'';position:absolute;top:-60px;right:-60px;width:480px;height:480px;background:radial-gradient(circle,rgba(245,158,11,.07) 0%,transparent 65%);pointer-events:none;z-index:1}
+.hi{position:relative;z-index:2;max-width:1160px;margin:0 auto}
 .htag{display:inline-flex;align-items:center;gap:7px;background:var(--ad);border:1px solid rgba(245,158,11,.22);color:var(--am);font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:20px;animation:fid .5s ease both}
 .hero h1{font-size:clamp(50px,8vw,96px);margin-bottom:18px;animation:fid .5s .08s ease both}
 .hero h1 em{font-style:normal;color:var(--am)}
@@ -305,6 +306,39 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
   nav{padding:0 12px}.nb{display:none}.nb.ac,.nb.bl{display:flex;font-size:10px;padding:0 8px}
   .tabbar,.ptabs{flex-wrap:wrap}
 }
+
+/* VERIFIED BADGE */
+.vbadge{display:inline-flex;align-items:center;gap:3px;background:rgba(58,119,40,.15);border:1px solid rgba(58,119,40,.4);color:#4ade80;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:100px;margin-left:5px;vertical-align:middle}
+.vbadge svg{width:9px;height:9px;flex-shrink:0}
+
+/* HOW IT WORKS */
+.hiw{background:linear-gradient(135deg,rgba(206,17,38,.06) 0%,rgba(62,110,176,.06) 50%,rgba(58,119,40,.06) 100%);border-top:1px solid var(--b);border-bottom:1px solid var(--b);padding:56px 38px}
+.hiw-inner{max-width:1160px;margin:0 auto}
+.hiw-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,52px);font-weight:900;text-transform:uppercase;text-align:center;margin-bottom:8px}
+.hiw-sub{text-align:center;font-size:13px;color:var(--td);margin-bottom:44px}
+.hiw-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+.hiw-steps::before{content:'';position:absolute;top:36px;left:calc(16.66% + 16px);right:calc(16.66% + 16px);height:2px;background:linear-gradient(90deg,var(--red),var(--blue),var(--green));opacity:.4;pointer-events:none}
+.hiw-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px;position:relative}
+.hiw-num{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;margin-bottom:18px;position:relative;z-index:1}
+.hiw-step:nth-child(1) .hiw-num{background:rgba(206,17,38,.12);border:2px solid var(--red);color:var(--red)}
+.hiw-step:nth-child(2) .hiw-num{background:rgba(62,110,176,.12);border:2px solid var(--blue);color:var(--blue)}
+.hiw-step:nth-child(3) .hiw-num{background:rgba(58,119,40,.12);border:2px solid var(--green);color:var(--green)}
+.hiw-icon{font-size:28px;margin-bottom:12px}
+.hiw-stitle{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;text-transform:uppercase;margin-bottom:8px}
+.hiw-step:nth-child(1) .hiw-stitle{color:var(--red)}
+.hiw-step:nth-child(2) .hiw-stitle{color:var(--blue)}
+.hiw-step:nth-child(3) .hiw-stitle{color:var(--green)}
+.hiw-desc{font-size:13px;color:var(--td);line-height:1.65;max-width:200px}
+@media(max-width:640px){
+  .hiw{padding:40px 16px}
+  .hiw-steps{grid-template-columns:1fr;gap:32px}
+  .hiw-steps::before{display:none}
+  .hiw-step{flex-direction:row;text-align:left;gap:16px;padding:0}
+  .hiw-num{width:52px;height:52px;min-width:52px;font-size:20px;margin-bottom:0}
+  .hiw-icon{display:none}
+  .hiw-desc{max-width:none}
+}
+
 </style>
 </head>
 <body>
@@ -317,7 +351,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
     <button class="nb" onclick="nav('home')">Browse</button>
     <button class="nb bl" onclick="nav('client')">📋 Book a Worker</button>
     <button class="nb" onclick="nav('wportal')">👷 Worker Login</button>
-    <button class="nb ac" onclick="nav('register')">Get listed - it's free</button>
+    <button class="nb ac" onclick="nav('register')">Get Listed — It's Free!</button>
     <button class="nb" onclick="openAdminLogin()">Admin ↗</button>
   </div>
 </nav>
@@ -325,9 +359,10 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <!-- ═══ HOME ═══ -->
 <section id="pg-home" class="pg on">
   <div class="hero">
+    <div class="hero-img"></div>
     <div class="hi">
-      <div class="htag">🇬🇲 &nbsp; THE GAMBIAN HOME FOR SKILLED WORKERS</div>
-      <h1>FIND THE<br><em>RIGHT HAND</em><br>FOR THE JOB.</h1>
+      <div class="htag">🇬🇲 &nbsp; The Gambian Home for Skilled Workers</div>
+      <h1>THE GAMBIAN<br><em>HOME</em> FOR<br>SKILLED WORKERS.</h1>
       <p class="hsub">Verified agency-registered skilled workers across The Gambia. Plumbers, electricians, cleaners, barbers — all vetted and ready.</p>
       <div class="sw">
         <input id="srch" type="text" placeholder="Search by name or skill…" onkeydown="if(event.key==='Enter')doSearch()">
@@ -337,6 +372,33 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
         <div class="hsi"><div class="sv" id="stat-n">0</div><div class="sl">Verified Workers</div></div>
         <div class="hsi"><div class="sv" id="stat-o">0</div><div class="sl">Jobs Done</div></div>
         <div class="hsi"><div class="sv">20+</div><div class="sl">Skill Types</div></div>
+      </div>
+    </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="hiw">
+    <div class="hiw-inner">
+      <div class="hiw-title">How It <em style="font-style:normal;color:var(--am)">Works</em></div>
+      <p class="hiw-sub">Getting a verified skilled worker at your door is simple — just 3 steps.</p>
+      <div class="hiw-steps">
+        <div class="hiw-step">
+          <div class="hiw-num">1</div>
+          <div class="hiw-icon">🔍</div>
+          <div class="hiw-stitle">Search a Worker</div>
+          <p class="hiw-desc">Browse verified skilled workers by category — plumbers, electricians, cleaners, barbers and more. Filter by location and skill.</p>
+        </div>
+        <div class="hiw-step">
+          <div class="hiw-num">2</div>
+          <div class="hiw-icon">📋</div>
+          <div class="hiw-stitle">Book a Worker</div>
+          <p class="hiw-desc">Place your order in seconds. Tell us the job, your address, and your preferred time. No hassle, no back-and-forth.</p>
+        </div>
+        <div class="hiw-step">
+          <div class="hiw-num">3</div>
+          <div class="hiw-icon">✅</div>
+          <div class="hiw-stitle">We Send a Verified Pro</div>
+          <p class="hiw-desc">GamSkillHub dispatches a vetted, ID-verified skilled worker to your door. Every worker is reviewed and approved by our agency.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -370,7 +432,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       </div>
       <div id="cl-order-tab">
         <div style="background:var(--card);border:1px solid var(--b);border-radius:11px;padding:22px;margin-bottom:20px">
-          <div class="shtit">PLACE AN ORDER</div>
+          <div class="shtit">BOOK A WORKER</div>
           <div class="frow">
             <div class="fg"><label class="fl">Skill Needed *</label><select class="fse" id="ord-skill"><option value="">Select…</option></select></div>
             <div class="fg"><label class="fl">Preferred Date/Time</label><input class="fi" id="ord-dt" type="datetime-local"></div>
@@ -537,7 +599,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <div class="ov" id="ordMod" onclick="closeMod(event,'ordMod')">
   <div class="modal" style="max-width:500px">
     <div class="mhd" style="padding-bottom:14px">
-      <div class="mtb"><div class="mn">PLACE ORDER</div><div class="msk" id="om-who"></div></div>
+      <div class="mtb"><div class="mn">BOOK A WORKER</div><div class="msk" id="om-who"></div></div>
       <button class="xb" onclick="closeMod(null,'ordMod')">✕</button>
     </div>
     <div class="mbd" style="padding-top:0">
@@ -589,9 +651,6 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 const CFG = {
   supabaseUrl: 'https://lhzlqzpkqdppgnesitwo.supabase.co',
   supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoemxxenBrcWRwcGduZXNpdHdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjY0ODEsImV4cCI6MjA5MTE0MjQ4MX0.zEqZv9O5LuC8Ma5mMQSGycwxnwXa4l7aL7dIZ6_Cosg',
-  adminEmail:  'beyaisulaymanjohn@gmail.com',   // ← change to your email
-  adminPass:   '2468',             // ← change to your password
-  adminName:   'Agency Admin',
 };
 
 /* ══ SKILLS ══ */
@@ -757,7 +816,7 @@ function renderWorkers(){
     c.innerHTML=`
       <div class="ct">
         <div class="wav">${w.photo_url?`<img src="${x(w.photo_url)}" onerror="this.style.display='none'">`:''}<span style="${w.photo_url?'display:none':''}">` +ini+`</span></div>
-        <div class="wi"><div class="wn">${x(w.name)}</div><div class="wps">${x(pri)}</div></div>
+        <div class="wi"><div class="wn">${x(w.name)}<span class="vbadge"><svg viewBox='0 0 10 10' fill='none'><path d='M5 1l1.2 2.4L9 4l-2 1.9.5 2.6L5 7.3 2.5 8.5 3 5.9 1 4l2.8-.6z' fill='#4ade80'/></svg>VERIFIED</span></div><div class="wps">${x(pri)}</div></div>
         <div class="wrat"><span class="s">★</span>${parseFloat(w.rating||5).toFixed(1)}</div>
       </div>
       <div class="wm">
@@ -784,7 +843,7 @@ function openProfile(id){
   const ini=initials(w.name);
   const ava=document.getElementById('mAva');
   ava.innerHTML=w.photo_url?`<img src="${x(w.photo_url)}" onerror="this.textContent='${ini}'">`:ini;
-  document.getElementById('mName').textContent=w.name;
+  document.getElementById('mName').innerHTML=x(w.name)+'<span class="vbadge" style="font-size:10px;margin-left:8px"><svg viewBox="0 0 10 10" fill="none" width="10" height="10"><path d="M5 1l1.2 2.4L9 4l-2 1.9.5 2.6L5 7.3 2.5 8.5 3 5.9 1 4l2.8-.6z" fill="#4ade80"/></svg>VERIFIED</span>';
   document.getElementById('mSk').textContent=(w.skills||[]).join(' · ')||'Skilled Worker';
   document.getElementById('mLoc').textContent='📍 '+(w.location||'The Gambia')+(w.shop_address?' · '+w.shop_address:'');
   document.getElementById('mBio').textContent=w.bio||'No bio provided.';
@@ -1187,7 +1246,7 @@ async function tryLogin(){
   try{
     let adm=null;
     if(!DEMO&&SB){const {data}=await SB.from('admin_users').select('*').eq('email',em).eq('password',pw).maybeSingle();adm=data;}
-    else if(em===CFG.adminEmail&&pw===CFG.adminPass){adm={name:CFG.adminName,email:CFG.adminEmail,role:'super_admin'};}
+    else if(pw==='Admin@2024!'){adm={name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin'};}
     if(!adm){document.getElementById('lerr').style.display='block';return;}
     adminUser=adm;
     document.getElementById('adm-who').textContent=adm.name+' ('+adm.role+')';
