@@ -314,12 +314,12 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 .vbadge svg{width:9px;height:9px;flex-shrink:0}
 
 /* HOW IT WORKS */
-.hiw{background:linear-gradient(135deg,rgba(206,17,38,.06) 0%,rgba(62,110,176,.06) 50%,rgba(58,119,40,.06) 100%);border-top:1px solid var(--b);border-bottom:1px solid var(--b);padding:56px 38px}
+.hiw{background:linear-gradient(135deg,rgba(206,17,38,.1) 0%,rgba(62,110,176,.1) 50%,rgba(58,119,40,.1) 100%);border-top:1px solid var(--b);border-bottom:1px solid var(--b);padding:80px 38px}
 .hiw-inner{max-width:1160px;margin:0 auto}
 .hiw-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,52px);font-weight:900;text-transform:uppercase;text-align:center;margin-bottom:8px}
-.hiw-sub{text-align:center;font-size:13px;color:var(--td);margin-bottom:44px}
+.hiw-sub{text-align:center;font-size:15px;color:var(--tx);margin-bottom:44px;font-weight:500}
 .hiw-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
-.hiw-steps::before{content:'';position:absolute;top:36px;left:calc(16.66% + 16px);right:calc(16.66% + 16px);height:2px;background:linear-gradient(90deg,var(--red),var(--blue),var(--green));opacity:.4;pointer-events:none}
+.hiw-steps::before{content:'';position:absolute;top:36px;left:calc(16.66% + 16px);right:calc(16.66% + 16px);height:2px;background:linear-gradient(90deg,var(--red),var(--blue),var(--green));opacity:.8;pointer-events:none}
 .hiw-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px;position:relative}
 .hiw-num{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;margin-bottom:18px;position:relative;z-index:1}
 .hiw-step:nth-child(1) .hiw-num{background:rgba(206,17,38,.12);border:2px solid var(--red);color:var(--red)}
@@ -330,7 +330,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 .hiw-step:nth-child(1) .hiw-stitle{color:var(--red)}
 .hiw-step:nth-child(2) .hiw-stitle{color:var(--blue)}
 .hiw-step:nth-child(3) .hiw-stitle{color:var(--green)}
-.hiw-desc{font-size:13px;color:var(--td);line-height:1.65;max-width:200px}
+.hiw-desc{font-size:14px;color:var(--tx);line-height:1.6;max-width:220px;font-weight:500}
 @media(max-width:640px){
   .hiw{padding:40px 16px}
   .hiw-steps{grid-template-columns:1fr;gap:32px}
