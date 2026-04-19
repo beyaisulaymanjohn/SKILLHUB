@@ -8,16 +8,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#121216;--sur:#1E1E26;--card:#252530;--ch:#2D2D3A;--b:#383845;--bl:#454555;--am:#FFB300;--al:#FFD54F;--ad:rgba(255,179,0,.15);--tx:#FFFFFF;--td:#D1D1E0;--mt:#A0A0B5;--ok:#4ADE80;--er:#F87171;--inf:#60A5FA;--red:#EF4444;--blue:#3B82F6;--green:#22C55E;--nav:rgba(18,18,22,.96)}
-	[data-theme="light"]{--bg:#F8F9FA;--sur:#FFFFFF;--card:#FFFFFF;--ch:#F1F3F5;--b:#E9ECEF;--bl:#DEE2E6;--am:#F59E0B;--al:#D97706;--ad:rgba(245,158,11,.1);--tx:#1A1A1A;--td:#495057;--mt:#6C757D;--ok:#28A745;--er:#DC3545;--inf:#007BFF;--nav:rgba(255,255,255,.96)}
+:root{--bg:#070708;--sur:#0F0F11;--card:#161618;--ch:#1C1C1F;--b:#222226;--bl:#2A2A2F;--am:#F59E0B;--al:#FCD34D;--ad:rgba(245,158,11,.08);--tx:#EDEDF0;--td:#9999A8;--mt:#555560;--ok:#22C55E;--er:#EF4444;--inf:#3E6EB0;--red:#CE1126;--blue:#3E6EB0;--green:#3A7728}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.5}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 h1,h2,h3,.bc{font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:.93;text-transform:uppercase;letter-spacing:-.01em}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bl);border-radius:10px}
 
 /* NAV */
-nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:var(--nav);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
+nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(7,7,8,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--b)}
 .logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;user-select:none}
 .logo .r{color:var(--red)}.logo .a{color:var(--am)}
 .nl{display:flex;gap:4px;align-items:center}
@@ -32,18 +31,13 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 
 /* HERO */
 .hero{position:relative;padding:60px 38px 44px;overflow:hidden}
-.hero-img{position:absolute;inset:0;background:url('https://img.freepik.com/free-photo/blurred-gradient-background-pink-color_58702-1643.jpg?semt=ais_hybrid&w=740&q=80') center/cover no-repeat;opacity:.15;pointer-events:none}
-.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(18,18,22,0.5) 0%,rgba(18,18,22,0.9) 70%,rgba(18,18,22,1) 100%);pointer-events:none;z-index:1}
-	[data-theme="light"] .hero::before{background:linear-gradient(135deg,rgba(255,255,255,0.7) 0%,rgba(255,255,255,0.9) 70%,rgba(255,255,255,1) 100%)}
-	[data-theme="light"] .hiw-sub, [data-theme="light"] .hiw-desc, [data-theme="light"] .hiw-title { color: #000000 !important; }
-	[data-theme="light"] .hiw-stitle { color: inherit; }
-	[data-theme="light"] .hiw { background: linear-gradient(135deg,rgba(206,17,38,.05) 0%,rgba(62,110,176,.05) 50%,rgba(58,119,40,.05) 100%); }
-.hero::after{content:'';position:absolute;top:-60px;right:-60px;width:480px;height:480px;background:radial-gradient(circle,rgba(245,158,11,.07) 0%,transparent 65%);pointer-events:none;z-index:1}
-.hi{position:relative;z-index:2;max-width:1160px;margin:0 auto}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--b) 1px,transparent 1px),linear-gradient(90deg,var(--b) 1px,transparent 1px);background-size:40px 40px;opacity:.28;mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,black 40%,transparent 100%)}
+.hero::after{content:'';position:absolute;top:-60px;right:-60px;width:480px;height:480px;background:radial-gradient(circle,rgba(245,158,11,.055) 0%,transparent 65%);pointer-events:none}
+.hi{position:relative;max-width:1160px;margin:0 auto}
 .htag{display:inline-flex;align-items:center;gap:7px;background:var(--ad);border:1px solid rgba(245,158,11,.22);color:var(--am);font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:20px;animation:fid .5s ease both}
 .hero h1{font-size:clamp(50px,8vw,96px);margin-bottom:18px;animation:fid .5s .08s ease both}
 .hero h1 em{font-style:normal;color:var(--am)}
-.hsub{font-size:17px;color:var(--tx);max-width:500px;line-height:1.6;margin-bottom:28px;animation:fid .5s .16s ease both;font-weight:500;text-shadow:0 2px 4px rgba(0,0,0,0.8)}
+.hsub{font-size:14px;color:var(--td);max-width:420px;line-height:1.65;margin-bottom:28px;animation:fid .5s .16s ease both;font-weight:300}
 .sw{max-width:540px;background:var(--sur);border:1px solid var(--bl);border-radius:10px;display:flex;gap:4px;padding:4px;margin-bottom:44px;animation:fid .5s .24s ease both;transition:box-shadow .2s}
 .sw:focus-within{box-shadow:0 0 0 2px rgba(245,158,11,.22);border-color:rgba(245,158,11,.38)}
 .sw input{flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);padding:7px 10px}
@@ -82,7 +76,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 .wm{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .wmi{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--td)}
 .wtags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:11px}
-.tag{padding:4px 10px;border-radius:100px;border:1px solid var(--b);font-size:10px;font-weight:700;color:var(--tx);text-transform:uppercase;letter-spacing:.5px;background:rgba(255,255,255,0.08)}
+.tag{padding:2px 7px;border-radius:100px;border:1px solid var(--bl);font-size:9px;font-weight:500;color:var(--mt);text-transform:uppercase;letter-spacing:.4px}
 .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px}
 .dot-ok{background:var(--ok)}.dot-er{background:var(--er)}
 .wf{display:flex;align-items:center;justify-content:space-between;padding-top:11px;border-top:1px solid var(--b)}
@@ -311,39 +305,6 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
   nav{padding:0 12px}.nb{display:none}.nb.ac,.nb.bl{display:flex;font-size:10px;padding:0 8px}
   .tabbar,.ptabs{flex-wrap:wrap}
 }
-
-/* VERIFIED BADGE */
-.vbadge{display:inline-flex;align-items:center;gap:3px;background:rgba(58,119,40,.15);border:1px solid rgba(58,119,40,.4);color:#4ade80;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:100px;margin-left:5px;vertical-align:middle}
-.vbadge svg{width:9px;height:9px;flex-shrink:0}
-
-/* HOW IT WORKS */
-.hiw{background:linear-gradient(135deg,rgba(206,17,38,.1) 0%,rgba(62,110,176,.1) 50%,rgba(58,119,40,.1) 100%);border-top:1px solid var(--b);border-bottom:1px solid var(--b);padding:80px 38px}
-.hiw-inner{max-width:1160px;margin:0 auto}
-.hiw-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(32px,5vw,52px);font-weight:900;text-transform:uppercase;text-align:center;margin-bottom:8px}
-.hiw-sub{text-align:center;font-size:17px;color:var(--tx);margin-bottom:44px;font-weight:600}
-.hiw-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
-.hiw-steps::before{content:'';position:absolute;top:36px;left:calc(16.66% + 16px);right:calc(16.66% + 16px);height:2px;background:linear-gradient(90deg,var(--red),var(--blue),var(--green));opacity:.8;pointer-events:none}
-.hiw-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px;position:relative}
-.hiw-num{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;margin-bottom:20px;position:relative;z-index:1;box-shadow:0 8px 20px rgba(0,0,0,0.3);border-width:3px !important}
-.hiw-step:nth-child(1) .hiw-num{background:rgba(206,17,38,.12);border:2px solid var(--red);color:var(--red)}
-.hiw-step:nth-child(2) .hiw-num{background:rgba(62,110,176,.12);border:2px solid var(--blue);color:var(--blue)}
-.hiw-step:nth-child(3) .hiw-num{background:rgba(58,119,40,.12);border:2px solid var(--green);color:var(--green)}
-.hiw-icon{font-size:28px;margin-bottom:12px}
-.hiw-stitle{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;text-transform:uppercase;margin-bottom:8px;letter-spacing:0.5px}
-.hiw-step:nth-child(1) .hiw-stitle{color:var(--red)}
-.hiw-step:nth-child(2) .hiw-stitle{color:var(--blue)}
-.hiw-step:nth-child(3) .hiw-stitle{color:var(--green)}
-.hiw-desc{font-size:15px;color:var(--tx);line-height:1.5;max-width:240px;font-weight:600}
-@media(max-width:640px){
-  .hiw{padding:40px 16px}
-  .hiw-steps{grid-template-columns:1fr;gap:32px}
-  .hiw-steps::before{display:none}
-  .hiw-step{flex-direction:row;text-align:left;gap:16px;padding:0}
-  .hiw-num{width:52px;height:52px;min-width:52px;font-size:20px;margin-bottom:0}
-  .hiw-icon{display:none}
-  .hiw-desc{max-width:none}
-}
-
 </style>
 </head>
 <body>
@@ -352,11 +313,11 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <!-- NAV -->
 <nav>
   <div class="logo" onclick="nav('home')"><span class="r">GAM</span><span class="a">SKILL</span>HUB</div>
-  <div class="nl"><button class="nb" id="theme-toggle" onclick="toggleTheme()" title="Toggle Theme" style="font-size:16px;padding:0 10px">🌓</button>
+  <div class="nl">
     <button class="nb" onclick="nav('home')">Browse</button>
-    <button class="nb bl" onclick="nav('client')">📋 Book a Worker</button>
+    <button class="nb bl" onclick="nav('client')">📋 Place Order</button>
     <button class="nb" onclick="nav('wportal')">👷 Worker Login</button>
-    <button class="nb ac" onclick="nav('register')">Get Listed — It's Free!</button>
+    <button class="nb ac" onclick="nav('register')">Join as Worker</button>
     <button class="nb" onclick="openAdminLogin()">Admin ↗</button>
   </div>
 </nav>
@@ -364,10 +325,9 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <!-- ═══ HOME ═══ -->
 <section id="pg-home" class="pg on">
   <div class="hero">
-    <div class="hero-img"></div>
     <div class="hi">
-      <div class="htag">🇬🇲 &nbsp; The Gambian Home for Skilled Workers</div>
-      <h1>THE GAMBIAN<br><em>HOME</em> FOR<br>SKILLED WORKERS.</h1>
+      <div class="htag">🇬🇲 &nbsp; The Gambia's #1 Skill Agency</div>
+      <h1>FIND THE<br><em>RIGHT HAND</em><br>FOR THE JOB.</h1>
       <p class="hsub">Verified agency-registered skilled workers across The Gambia. Plumbers, electricians, cleaners, barbers — all vetted and ready.</p>
       <div class="sw">
         <input id="srch" type="text" placeholder="Search by name or skill…" onkeydown="if(event.key==='Enter')doSearch()">
@@ -377,33 +337,6 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
         <div class="hsi"><div class="sv" id="stat-n">0</div><div class="sl">Verified Workers</div></div>
         <div class="hsi"><div class="sv" id="stat-o">0</div><div class="sl">Jobs Done</div></div>
         <div class="hsi"><div class="sv">20+</div><div class="sl">Skill Types</div></div>
-      </div>
-    </div>
-
-  <!-- HOW IT WORKS -->
-  <div class="hiw">
-    <div class="hiw-inner">
-      <div class="hiw-title">How It <em style="font-style:normal;color:var(--am)">Works</em></div>
-      <p class="hiw-sub">Getting a verified skilled worker at your door is simple — just 3 steps.</p>
-      <div class="hiw-steps">
-        <div class="hiw-step">
-          <div class="hiw-num">1</div>
-          <div class="hiw-icon">🔍</div>
-          <div class="hiw-stitle">Search a Worker</div>
-          <p class="hiw-desc">Browse verified skilled workers by category — plumbers, electricians, cleaners, barbers and more. Filter by location and skill.</p>
-        </div>
-        <div class="hiw-step">
-          <div class="hiw-num">2</div>
-          <div class="hiw-icon">📋</div>
-          <div class="hiw-stitle">Book a Worker</div>
-          <p class="hiw-desc">Place your order in seconds. Tell us the job, your address, and your preferred time. No hassle, no back-and-forth.</p>
-        </div>
-        <div class="hiw-step">
-          <div class="hiw-num">3</div>
-          <div class="hiw-icon">✅</div>
-          <div class="hiw-stitle">We Send a Verified Pro</div>
-          <p class="hiw-desc">GamSkillHub dispatches a vetted, ID-verified skilled worker to your door. Every worker is reviewed and approved by our agency.</p>
-        </div>
       </div>
     </div>
   </div>
@@ -437,7 +370,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       </div>
       <div id="cl-order-tab">
         <div style="background:var(--card);border:1px solid var(--b);border-radius:11px;padding:22px;margin-bottom:20px">
-          <div class="shtit">BOOK A WORKER</div>
+          <div class="shtit">PLACE AN ORDER</div>
           <div class="frow">
             <div class="fg"><label class="fl">Skill Needed *</label><select class="fse" id="ord-skill"><option value="">Select…</option></select></div>
             <div class="fg"><label class="fl">Preferred Date/Time</label><input class="fi" id="ord-dt" type="datetime-local"></div>
@@ -604,7 +537,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <div class="ov" id="ordMod" onclick="closeMod(event,'ordMod')">
   <div class="modal" style="max-width:500px">
     <div class="mhd" style="padding-bottom:14px">
-      <div class="mtb"><div class="mn">BOOK A WORKER</div><div class="msk" id="om-who"></div></div>
+      <div class="mtb"><div class="mn">PLACE ORDER</div><div class="msk" id="om-who"></div></div>
       <button class="xb" onclick="closeMod(null,'ordMod')">✕</button>
     </div>
     <div class="mbd" style="padding-top:0">
@@ -652,15 +585,6 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <div id="toast"></div>
 
 <script>
-	function toggleTheme(){
-		const current = document.documentElement.getAttribute('data-theme');
-		const target = current === 'light' ? 'dark' : 'light';
-		document.documentElement.setAttribute('data-theme', target);
-		localStorage.setItem('skillhub-theme', target);
-	}
-	const savedTheme = localStorage.getItem('skillhub-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-	document.documentElement.setAttribute('data-theme', savedTheme);
-	
 /* ══ CONFIG ══ */
 const CFG = {
   supabaseUrl: 'https://lhzlqzpkqdppgnesitwo.supabase.co',
@@ -668,6 +592,7 @@ const CFG = {
   adminEmail:  'admin@gamskillhub.gm',
   adminPass:   'GamSkill2024!',
   adminName:   'Agency Admin',
+};
 
 /* ══ SKILLS ══ */
 const DEFAULT_SKILLS = [
@@ -832,7 +757,7 @@ function renderWorkers(){
     c.innerHTML=`
       <div class="ct">
         <div class="wav">${w.photo_url?`<img src="${x(w.photo_url)}" onerror="this.style.display='none'">`:''}<span style="${w.photo_url?'display:none':''}">` +ini+`</span></div>
-        <div class="wi"><div class="wn">${x(w.name)}<span class="vbadge"><svg viewBox='0 0 10 10' fill='none'><path d='M5 1l1.2 2.4L9 4l-2 1.9.5 2.6L5 7.3 2.5 8.5 3 5.9 1 4l2.8-.6z' fill='#4ade80'/></svg>VERIFIED</span></div><div class="wps">${x(pri)}</div></div>
+        <div class="wi"><div class="wn">${x(w.name)}</div><div class="wps">${x(pri)}</div></div>
         <div class="wrat"><span class="s">★</span>${parseFloat(w.rating||5).toFixed(1)}</div>
       </div>
       <div class="wm">
@@ -859,7 +784,7 @@ function openProfile(id){
   const ini=initials(w.name);
   const ava=document.getElementById('mAva');
   ava.innerHTML=w.photo_url?`<img src="${x(w.photo_url)}" onerror="this.textContent='${ini}'">`:ini;
-  document.getElementById('mName').innerHTML=x(w.name)+'<span class="vbadge" style="font-size:10px;margin-left:8px"><svg viewBox="0 0 10 10" fill="none" width="10" height="10"><path d="M5 1l1.2 2.4L9 4l-2 1.9.5 2.6L5 7.3 2.5 8.5 3 5.9 1 4l2.8-.6z" fill="#4ade80"/></svg>VERIFIED</span>';
+  document.getElementById('mName').textContent=w.name;
   document.getElementById('mSk').textContent=(w.skills||[]).join(' · ')||'Skilled Worker';
   document.getElementById('mLoc').textContent='📍 '+(w.location||'The Gambia')+(w.shop_address?' · '+w.shop_address:'');
   document.getElementById('mBio').textContent=w.bio||'No bio provided.';
@@ -1262,7 +1187,7 @@ async function tryLogin(){
   try{
     let adm=null;
     if(!DEMO&&SB){const {data}=await SB.from('admin_users').select('*').eq('email',em).eq('password',pw).maybeSingle();adm=data;}
-    else if(pw==='Admin@2024!'){adm={name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin'};}
+    else if(em===CFG.adminEmail&&pw===CFG.adminPass){adm={name:CFG.adminName,email:CFG.adminEmail,role:'super_admin'};}
     if(!adm){document.getElementById('lerr').style.display='block';return;}
     adminUser=adm;
     document.getElementById('adm-who').textContent=adm.name+' ('+adm.role+')';
