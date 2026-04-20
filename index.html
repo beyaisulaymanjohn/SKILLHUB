@@ -24,8 +24,11 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 .nl{display:flex;gap:4px;align-items:center}
 .nb{height:31px;padding:0 13px;border-radius:7px;border:1px solid var(--b);background:none;color:var(--td);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap}
 .nb:hover{border-color:var(--am);color:var(--am)}
-.nb.ac{background:var(--am);border-color:var(--am);color:#000;font-weight:600}.nb.ac:hover{background:var(--al)}
-.nb.bl{background:var(--am);border-color:var(--am);color:#000;font-weight:600}.nb.bl:hover{background:var(--al);color:#000}
+.nb-book{background:#3A7728;border-color:#3A7728;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.nb-book:hover{background:#2e5e20;border-color:#2e5e20;color:#fff}
+.nb-get{background:#3E6EB0;border-color:#3E6EB0;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.nb-get:hover{background:#2d5a96;border-color:#2d5a96;color:#fff}
+.nb-login{background:#3E6EB0;border-color:#3E6EB0;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.nb-login:hover{background:#2d5a96;border-color:#2d5a96;color:#fff}
+
+
 .flagbar{height:4px;background:linear-gradient(90deg,var(--red) 0 33%,#fff 33% 36%,var(--blue) 36% 64%,#fff 64% 67%,var(--green) 67% 100%)}
 
 /* PAGES */
@@ -371,6 +374,8 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
   .wsc-name{font-size:12px}.wsc-skill{display:none}
 }
 
+
+
 </style>
 </head>
 <body>
@@ -382,10 +387,8 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
   <div class="nl">
     <button class="nb" onclick="toggleTheme()" style="font-size:15px;padding:0 10px" title="Toggle Light/Dark">🌓</button>
     <button class="nb" onclick="nav('home')">Browse</button>
-    <button class="nb bl" onclick="nav('client')">📋 Book a Worker</button>
-    <button class="nb" onclick="nav('wportal')">👷 Worker Login</button>
-    <button class="nb ac" onclick="nav('register')" style="height:auto;padding:4px 13px;line-height:1.2"><span style="display:block;font-size:12px;font-weight:700">Get Listed!</span><span style="display:block;font-size:10px;font-weight:500;opacity:.85">It's Free</span></button>
-    <button class="nb" onclick="openAdminLogin()">Admin ↗</button>
+    <button class="nb nb-get" onclick="nav('register')" style="height:auto;padding:5px 13px;line-height:1.1"><span style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase">GET LISTED!</span><span style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;opacity:.9">IT'S FREE</span></button>
+    <button class="nb nb-login" onclick="nav('wportal')">👷 WORKER LOGIN</button>
   </div>
 </nav>
 
@@ -470,6 +473,17 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       </div>
     </div>
     </div>
+
+
+  <!-- BOOK A WORKER BANNER -->
+  <div id="book-section" style="background:linear-gradient(135deg,#3A7728 0%,#2e5e20 100%);padding:48px 38px;text-align:center">
+    <div style="max-width:700px;margin:0 auto">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:12px">FOR CLIENTS &amp; HOMEOWNERS</div>
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,60px);font-weight:900;text-transform:uppercase;color:#fff;line-height:.95;margin-bottom:16px">NEED A SKILLED WORKER?<br><em style="font-style:normal;color:#FCD34D">BOOK ONE TODAY.</em></h2>
+      <p style="font-size:15px;color:rgba(255,255,255,.85);max-width:480px;margin:0 auto 28px;line-height:1.6">Tell us what you need. We send a verified, vetted worker to your door — anywhere in The Gambia.</p>
+      <button onclick="nav('client')" style="background:#fff;color:#3A7728;border:none;padding:14px 36px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.2)">📋 BOOK A WORKER NOW →</button>
+    </div>
+  </div>
 
   <!-- HOW IT WORKS -->
   <div class="hiw">
@@ -1585,6 +1599,14 @@ function toggleTheme(){
   const t=localStorage.getItem('gsh-theme')||(window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');
   document.documentElement.setAttribute('data-theme',t);
 })();
+
+
+
+
+/* Secret admin access: press Ctrl+Shift+A */
+document.addEventListener('keydown',function(e){
+  if(e.ctrlKey&&e.shiftKey&&e.key==='A'){openAdminLogin();}
+});
 
 /* ══ BOOT ══ */
 init();
