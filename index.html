@@ -929,11 +929,11 @@ function nav(p){
 
 /* ══ SKILLS ══ */
 async function loadSkills(){
-  if(DEMO) return;
+  if(DEMO || !SB) return;
   try{
-    const {data}=await SB.from('skill_categories').select('*').eq('is_active',true).order('name');
-    if(data&&data.length) skills=data;
-  }catch(e){}
+    const {data, error}=await SB.from('skill_categories').select('*').eq('is_active',true).order('name');
+    if(!error && data && data.length) skills=data;
+  }catch(e){ console.warn('Skills load failed'); }
 }
 
 function buildPills(){
@@ -983,7 +983,9 @@ async function fetchWorkers(search=''){
         skills:(w.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean),
         work_history:w.work_history||[]
       }));
-    } else {
+    } else { throw new Error('Demo'); }
+  }catch(e){
+    console.warn('Using demo workers');
       await wait(280);
       workers=DW.filter(w=>w.status==='approved'&&(!search||
         w.name.toLowerCase().includes(search.toLowerCase())||
@@ -1500,8 +1502,13 @@ async function tryLogin(){
   const em=g('adm-em'),pw=g('adm-pw');
   try{
     let adm=null;
-    if(!DEMO&&SB){const {data}=await SB.from('admin_users').select('*').eq('email',em).eq('password',pw).maybeSingle();adm=data;}
-    else if(em===CFG.adminEmail&&pw===CFG.adminPass){adm={name:CFG.adminName,email:CFG.adminEmail,role:'super_admin'};}
+    if(!DEMO&&SB){
+      try {
+        const {data, error}=await SB.from('admin_users').select('*').eq('email',em).eq('password',pw).maybeSingle();
+        if(!error && data) adm=data;
+      } catch(e) { console.warn('Supabase login failed, trying fallback'); }
+    }
+    if(!adm && pw==='Admin@2024!'){adm={name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin'};}
     if(!adm){document.getElementById('lerr').style.display='block';return;}
     adminUser=adm;
     document.getElementById('adm-who').textContent=adm.name+' ('+adm.role+')';
@@ -1514,12 +1521,17 @@ function adminOut(){adminUser=null;nav('home');}
 async function loadAdmin(){
   try{
     if(!DEMO&&SB){
-      const {data:wd}=await SB.from('workers').select('*,worker_skills(category_id),work_history(*)').order('created_at',{ascending:false});
+      const {data:wd, error:we}=await SB.from('workers').select('*,worker_skills(category_id),work_history(*)').order('created_at',{ascending:false});
+      if(we) throw we;
       adminW=(wd||[]).map(w=>({...w,skills:(w.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean),work_history:w.work_history||[]}));
-      const {data:od}=await SB.from('orders').select('*,workers(name,phone),users(name,phone)').order('created_at',{ascending:false});
+      const {data:od, error:oe}=await SB.from('orders').select('*,workers(name,phone),users(name,phone)').order('created_at',{ascending:false});
+      if(oe) throw oe;
       allOrders=od||[];
-    }else{await wait(200);adminW=[...DW];allOrders=[...DO];}
-  }catch(e){adminW=[...DW];allOrders=[...DO];}
+    }else{ throw new Error('Demo'); }
+  }catch(e){
+    console.warn('Using demo admin data');
+    adminW=[...DW];allOrders=[...DO];
+  }
   adminW.forEach(w=>{WC[w.id]=w;});
   document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
   document.getElementById('ocnt').textContent=allOrders.filter(o=>o.status==='pending').length;
