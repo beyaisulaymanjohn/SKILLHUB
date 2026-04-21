@@ -25,7 +25,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 .nb:hover{border-color:var(--am);color:var(--am)}
 .nb-book{background:#3A7728;border-color:#3A7728;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.nb-book:hover{background:#2e5e20;border-color:#2e5e20;color:#fff}
 .nb-get{background:#3E6EB0;border-color:#3E6EB0;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.nb-get:hover{background:#2d5a96;border-color:#2d5a96;color:#fff}
-.nb-login{background:#3E6EB0;border-color:#3E6EB0;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.nb-login:hover{background:#2d5a96;border-color:#2d5a96;color:#fff}
+.nb-login{background:#0D9488;border-color:#0D9488;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.nb-login:hover{background:#0f766e;border-color:#0f766e;color:#fff}
 
 
 .flagbar{height:4px;background:linear-gradient(90deg,var(--red) 0 33%,#fff 33% 36%,var(--blue) 36% 64%,#fff 64% 67%,var(--green) 67% 100%)}
@@ -375,6 +375,45 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 
 
 
+
+.pop-tags{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:-30px;margin-bottom:36px;animation:fid .5s .28s ease both}
+.pop-lbl{font-size:11px;color:var(--mt);font-weight:500}
+.pop-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:100px;border:1px solid var(--bl);background:var(--sur);color:var(--td);font-size:11px;font-weight:500;cursor:pointer;transition:all .18s}
+.pop-tag:hover,.pop-tag.active{background:rgba(58,119,40,.12);border-color:#3A7728;color:#3A7728}
+[data-theme="dark"] .pop-tag:hover,[data-theme="dark"] .pop-tag.active{background:rgba(58,119,40,.2);border-color:#4ade80;color:#4ade80}
+
+
+/* WORKER SIDE SECTION */
+.ws-section{background:linear-gradient(135deg,#1E3A5F 0%,#3E6EB0 100%);padding:72px 38px}
+.ws-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+.ws-left{}
+.ws-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:18px}
+.ws-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,58px);font-weight:900;text-transform:uppercase;color:#fff;line-height:.95;margin-bottom:16px}
+.ws-title em{font-style:normal;color:#FCD34D}
+.ws-desc{font-size:14px;color:rgba(255,255,255,.82);line-height:1.7;margin-bottom:28px;max-width:400px}
+.ws-perks{display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.ws-perk{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.9)}
+.ws-perk-ic{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ws-cta{display:inline-flex;align-items:center;gap:8px;background:#FCD34D;color:#1E3A5F;border:none;padding:14px 32px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.ws-cta:hover{background:#fff;transform:translateY(-2px)}
+.ws-right{}
+.ws-howto-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;text-transform:uppercase;color:#FCD34D;letter-spacing:1px;margin-bottom:20px}
+.ws-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
+.ws-step-num{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;color:#FCD34D;flex-shrink:0}
+.ws-step-body{}
+.ws-step-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;text-transform:uppercase;color:#fff;margin-bottom:4px}
+.ws-step-desc{font-size:12px;color:rgba(255,255,255,.72);line-height:1.6}
+@media(max-width:768px){
+  .ws-section{padding:48px 18px}
+  .ws-inner{grid-template-columns:1fr;gap:40px}
+}
+
+
+/* UNIFIED LOGIN MODAL */
+.lmode-tabs{display:flex;gap:4px;background:var(--ch);border-radius:8px;padding:3px;margin-bottom:22px}
+.lmode-tab{flex:1;padding:7px;border-radius:6px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--mt);cursor:pointer;transition:all .18s;text-align:center}
+.lmode-tab.on{background:var(--sur);color:#0D9488}
+
 </style>
 </head>
 <body>
@@ -382,12 +421,12 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 
 <!-- NAV -->
 <nav>
-  <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="nav('home')"><img src="data:image/jpeg;base64,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" style="height:42px;width:42px;object-fit:contain;border-radius:8px;cursor:pointer" alt="GamSkillHub"><span class="logo" style="cursor:pointer"><span class="r">GAM</span><span class="a">SKILL</span>HUB</span></div>
+  <div style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:6px 0" onclick="nav('home')"><img src="data:image/jpeg;base64,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" style="height:42px;width:42px;object-fit:contain;border-radius:8px;cursor:pointer" alt="GamSkillHub"><span class="logo" style="cursor:pointer"><span class="r">GAM</span><span class="a">SKILL</span>HUB</span></div>
   <div class="nl">
     <button class="nb" onclick="toggleTheme()" style="font-size:15px;padding:0 10px" title="Toggle Light/Dark">🌓</button>
     <button class="nb" onclick="nav('home')">Browse</button>
     <button class="nb nb-get" onclick="nav('register')" style="height:auto;padding:5px 13px;line-height:1.1"><span style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase">GET LISTED!</span><span style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;opacity:.9">IT'S FREE</span></button>
-    <button class="nb nb-login" onclick="nav('wportal')">👷 WORKER LOGIN</button>
+    <button class="nb nb-login" onclick="openLoginPortal()">LOGIN</button>
   </div>
 </nav>
 
@@ -398,7 +437,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       <div class="hero-left">
         <h1 style="margin-bottom:14px">THE GAMBIAN<br><em>HOME</em> FOR<br>SKILLED WORKERS.</h1>
         <div class="htag" style="margin-bottom:20px">🇬🇲 &nbsp; Serving All Regions of The Gambia</div>
-        <p class="hsub">Verified agency-registered skilled workers. Plumbers, electricians, cleaners, barbers — all vetted and ready.</p>
+        <p class="hsub">From emergency repairs to creative projects, connect with agency-vetted experts across The Gambia. Fast, Reliable, and Guaranteed.</p>
         <div class="sw">
           <input id="srch" type="text" placeholder="Search by name or skill…" onkeydown="if(event.key==='Enter')doSearch()">
           <button class="sbtn" onclick="doSearch()">Search</button>
@@ -480,7 +519,65 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:12px">FOR CLIENTS &amp; HOMEOWNERS</div>
       <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,60px);font-weight:900;text-transform:uppercase;color:#fff;line-height:.95;margin-bottom:16px">NEED A SKILLED WORKER?<br><em style="font-style:normal;color:#FCD34D">BOOK ONE TODAY.</em></h2>
       <p style="font-size:15px;color:rgba(255,255,255,.85);max-width:480px;margin:0 auto 28px;line-height:1.6">Tell us what you need. We send a verified, vetted worker to your door — anywhere in The Gambia.</p>
-      <button onclick="nav('client')" style="background:#fff;color:#3A7728;border:none;padding:14px 36px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.2)">📋 BOOK A WORKER NOW →</button>
+      <button onclick="openClientPortal()" style="background:#fff;color:#3A7728;border:none;padding:14px 36px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.2)">📋 BOOK A WORKER NOW →</button>
+    </div>
+  </div>
+
+
+  <!-- WORKER SIDE SECTION -->
+  <div class="ws-section">
+    <div class="ws-inner">
+      <div class="ws-left">
+        <div class="ws-badge">👷 FOR SKILLED WORKERS</div>
+        <h2 class="ws-title">GET LISTED.<br><em>IT'S FREE.</em><br>GROW YOUR WORK.</h2>
+        <p class="ws-desc">Join The Gambia's fastest-growing skilled worker network. Reach clients who need your skills — from Banjul to Brikama and beyond.</p>
+        <div class="ws-perks">
+          <div class="ws-perk"><div class="ws-perk-ic">✓</div>Free to register — no upfront cost</div>
+          <div class="ws-perk"><div class="ws-perk-ic">🔐</div>Agency-verified badge on your profile</div>
+          <div class="ws-perk"><div class="ws-perk-ic">📋</div>Receive job orders directly to your portal</div>
+          <div class="ws-perk"><div class="ws-perk-ic">⭐</div>Build your reputation with client reviews</div>
+          <div class="ws-perk"><div class="ws-perk-ic">📞</div>Clients can call you directly</div>
+        </div>
+        <button class="ws-cta" onclick="nav('register')">GET LISTED — IT'S FREE →</button>
+      </div>
+      <div class="ws-right">
+        <div class="ws-howto-title">HOW TO SIGN UP</div>
+        <div class="ws-step">
+          <div class="ws-step-num">1</div>
+          <div class="ws-step-body">
+            <div class="ws-step-title">Fill Your Personal Info</div>
+            <div class="ws-step-desc">Enter your name, phone number, location and years of experience. Takes less than 2 minutes.</div>
+          </div>
+        </div>
+        <div class="ws-step">
+          <div class="ws-step-num">2</div>
+          <div class="ws-step-body">
+            <div class="ws-step-title">Select Your Skills</div>
+            <div class="ws-step-desc">Pick all the services you offer — plumbing, electrical, cleaning, carpentry and more. Pick as many as apply.</div>
+          </div>
+        </div>
+        <div class="ws-step">
+          <div class="ws-step-num">3</div>
+          <div class="ws-step-body">
+            <div class="ws-step-title">Upload Your Documents</div>
+            <div class="ws-step-desc">Upload your profile photo and a valid ID (National ID, passport or driver's licence). Optionally add your certifications.</div>
+          </div>
+        </div>
+        <div class="ws-step">
+          <div class="ws-step-num">4</div>
+          <div class="ws-step-body">
+            <div class="ws-step-title">Add Your Portfolio</div>
+            <div class="ws-step-desc">Upload photos of your past work. This builds trust with clients and increases your chances of getting booked.</div>
+          </div>
+        </div>
+        <div class="ws-step">
+          <div class="ws-step-num">5</div>
+          <div class="ws-step-body">
+            <div class="ws-step-title">Wait for Approval</div>
+            <div class="ws-step-desc">Our team reviews every application within 24–48 hours. Once approved, your profile goes live and clients can find you.</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1347,6 +1444,52 @@ function resetForm(){
   document.querySelectorAll('.snd').forEach((nd,i)=>{nd.classList.remove('dn','ac');if(i===0)nd.classList.add('ac');});
   document.getElementById('fs1').classList.add('on');
   document.getElementById('sbtn').disabled=false;document.getElementById('sbtn').textContent='Submit Application ✓';
+}
+
+
+
+/* ══ CLIENT PORTAL ENTRY ══ */
+function openClientPortal(){
+  nav('client');
+  // scroll to top smoothly
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══ LOGIN PORTAL ══ */
+let loginMode = 'worker';
+function openLoginPortal(){
+  document.getElementById('loginMod').classList.add('on');
+  switchLoginMode('worker');
+  setTimeout(()=>document.getElementById('wp-phone-modal')?.focus(),80);
+}
+function switchLoginMode(mode){
+  loginMode = mode;
+  document.getElementById('lf-worker').style.display = mode==='worker'?'block':'none';
+  document.getElementById('lf-admin').style.display  = mode==='admin'?'block':'none';
+  document.getElementById('ltab-worker').classList.toggle('on', mode==='worker');
+  document.getElementById('ltab-admin').classList.toggle('on',  mode==='admin');
+  document.getElementById('lerr').style.display='none';
+}
+async function loginWorkerModal(){
+  const ph = document.getElementById('wp-phone-modal').value.trim();
+  if(!ph){toast('Enter your registered phone number.','er');return;}
+  // Copy to the worker portal's phone input and trigger login
+  document.getElementById('wp-phone').value = ph;
+  closeLogin();
+  nav('wportal');
+  await workerLogin();
+}
+
+/* ══ QUICK SEARCH ══ */
+function quickSearch(skill){
+  curFilter = skill;
+  document.querySelectorAll('.pop-tag').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.pill').forEach(p=>{
+    p.classList.toggle('on', p.textContent.includes(skill));
+  });
+  renderWorkers();
+  document.getElementById('wbox').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 /* ══ ADMIN LOGIN ══ */
