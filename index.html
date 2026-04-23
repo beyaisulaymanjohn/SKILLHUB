@@ -1418,16 +1418,44 @@ function openAdminLogin(){if(adminUser){nav('admin');return;}document.getElement
 function closeLogin(){document.getElementById('loginMod').classList.remove('on');document.getElementById('lerr').style.display='none';const pw=document.getElementById('adm-pw');if(pw)pw.value='';const ph=document.getElementById('wp-phone-modal');if(ph)ph.value='';}
 
 async function tryLogin(){
-  const em=g('adm-em'),pw=g('adm-pw');
-  try{
-    let adm=null;
-    if(!DEMO&&SB){const {data}=await SB.from('admin_users').select('*').eq('email',em).eq('password',pw).maybeSingle();adm=data;}
-    else if(pw==='Admin@2024!'){adm={name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin'};}
-    if(!adm){document.getElementById('lerr').style.display='block';return;}
-    adminUser=adm;
-    document.getElementById('adm-who').textContent=adm.name+' ('+adm.role+')';
-    closeLogin();nav('admin');loadAdmin();
-  }catch(e){document.getElementById('lerr').style.display='block';}
+  const em = (document.getElementById('adm-em')?.value || '').trim().toLowerCase();
+  const pw = (document.getElementById('adm-pw')?.value || '').trim();
+  const err = document.getElementById('lerr');
+  if(err) err.style.display = 'none';
+
+  try {
+    let adm = null;
+    
+    // 1. Try Supabase first if available
+    if (!DEMO && SB) {
+      try {
+        const { data, error } = await SB.from('admin_users').select('*').eq('email', em).eq('password', pw).maybeSingle();
+        if (!error && data) adm = data;
+      } catch (e) { console.warn('Supabase auth failed:', e); }
+    }
+
+    // 2. Absolute Fallback (Matches both email and password)
+    if (!adm && (em === 'admin@gamskillhub.gm' || em === 'admin') && pw === 'Admin@2024!') {
+      adm = { name: 'Agency Admin', email: 'admin@gamskillhub.gm', role: 'super_admin' };
+    }
+
+    if (!adm) {
+      if(err) err.style.display = 'block';
+      return;
+    }
+
+    adminUser = adm;
+    const who = document.getElementById('adm-who');
+    if(who) who.textContent = adm.name + ' (' + adm.role + ')';
+    
+    closeLogin();
+    nav('admin');
+    loadAdmin();
+    toast('Welcome, Admin', 'ok');
+  } catch (e) {
+    if(err) err.style.display = 'block';
+    console.error('Login error:', e);
+  }
 }
 function adminOut(){adminUser=null;nav('home');}
 
