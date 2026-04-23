@@ -793,24 +793,30 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 
 <!-- ═══ UNIFIED LOGIN MODAL ═══ -->
 <div class="lov" id="loginMod">
-  <div class="lbox">
-    <h3 style="margin-bottom:6px">WELCOME<br><em style="font-style:normal;color:#0D9488">BACK</em></h3>
-    <div class="lsub">Log in to your GamSkillHub account.</div>
-    <div class="lmode-tabs">
-      <button class="lmode-tab on" id="ltab-worker" onclick="switchLoginMode('worker')">👷 Worker</button>
-      <button class="lmode-tab" id="ltab-admin" onclick="switchLoginMode('admin')">🔐 Admin</button>
+    <div class="lbox">
+      <div id="ltabs" class="lmode-tabs" style="display:none">
+        <button id="ltab-worker" class="lmode-tab on" onclick="switchLoginMode('worker')">WORKER</button>
+        <button id="ltab-admin" class="lmode-tab" onclick="switchLoginMode('admin')">ADMIN</button>
+      </div>
+      
+      <div id="lf-worker">
+        <h3 onclick="secretAdmin()" style="cursor:default">WORKER<br><em style="font-style:normal;color:var(--am)">LOGIN</em></h3>
+        <div class="lsub">Login with your phone number and password.</div>
+        <div class="fg"><label class="fl">Phone Number</label><input class="fi" id="wp-phone-modal" type="tel" placeholder="+220 7XX XXXX"></div>
+        <div class="fg"><label class="fl">Password</label><input class="fi" id="wp-pw-modal" type="password" placeholder="Your password"></div>
+        <div class="brow"><button class="btn bg" onclick="closeLogin()">Cancel</button><button class="btn bp" onclick="loginWorkerModal()">Login →</button></div>
+      </div>
+
+      <div id="lf-admin" style="display:none">
+        <h3>ADMIN<br><em style="font-style:normal;color:var(--am)">LOGIN</em></h3>
+        <div class="lsub">Enter your agency admin credentials.</div>
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="adm-em" type="email" placeholder="admin@gamskillhub.gm"></div>
+        <div class="fg"><label class="fl">Password</label><input class="fi" id="adm-pw" type="password" placeholder="Password"></div>
+        <div class="brow"><button class="btn bg" onclick="closeLogin()">Cancel</button><button class="btn bp" onclick="tryLogin()">Admin Login →</button></div>
+      </div>
+      
+      <div class="lerr" id="lerr">❌ Incorrect credentials.</div>
     </div>
-    <div id="lf-worker">
-      <div class="fg"><label class="fl">Registered Phone Number</label><input class="fi" id="wp-phone-modal" type="tel" placeholder="+220 7XX XXXX" onkeydown="if(event.key==='Enter')loginWorkerModal()"></div>
-      <div class="brow"><button class="btn bg" onclick="closeLogin()">Cancel</button><button class="btn bp" style="background:#0D9488;border-color:#0D9488" onclick="loginWorkerModal()">Login →</button></div>
-    </div>
-    <div id="lf-admin" style="display:none">
-      <div class="fg"><label class="fl">Email</label><input class="fi" id="adm-em" type="email" placeholder="admin@gamskillhub.gm"></div>
-      <div class="fg"><label class="fl">Password</label><input class="fi" id="adm-pw" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')tryLogin()"></div>
-      <div class="brow"><button class="btn bg" onclick="closeLogin()">Cancel</button><button class="btn bp" onclick="tryLogin()">Login →</button></div>
-    </div>
-    <div class="lerr" id="lerr">❌ Incorrect credentials.</div>
-  </div>
 </div>
 
 <div id="toast"></div>
@@ -818,8 +824,9 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 <script>
 /* ══ CONFIG ══ */
 const CFG = {
-  supabaseUrl: 'YOUR_SUPABASE_URL',
-  supabaseKey: 'YOUR_SUPABASE_ANON_KEY',
+  supabaseUrl: 'https://lhzlqzpkqdppgnesitwo.supabase.co',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoemxxenBrcWRwcGduZXNpdHdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjY0ODEsImV4cCI6MjA5MTE0MjQ4MX0.zEqZv9O5LuC8Ma5mMQSGycwxnwXa4l7aL7dIZ6_Cosg',
+  adminEmail:  'admin@gamskillhub.gm',
 };
 
 /* ══ SKILLS ══ */
@@ -1660,29 +1667,57 @@ function quickBook(skill){
   setTimeout(()=>document.getElementById('wbox').scrollIntoView({behavior:'smooth'}),200);
 }
 
-/* ══ UNIFIED LOGIN PORTAL ══ */
+/* ══ LOGIN PORTAL ══ */
+let loginMode = 'worker';
 function openLoginPortal(){
   document.getElementById('loginMod').classList.add('on');
+  if(document.getElementById('ltabs')) document.getElementById('ltabs').style.display = 'none';
   switchLoginMode('worker');
   setTimeout(()=>document.getElementById('wp-phone-modal')?.focus(),80);
 }
+let adminClicks = 0;
+function secretAdmin(){
+  adminClicks++;
+  if(adminClicks >= 5){
+    document.getElementById('ltabs').style.display = 'flex';
+    switchLoginMode('admin');
+    adminClicks = 0;
+    toast('Admin mode activated', 'ok');
+  }
+}
 function switchLoginMode(mode){
-  document.getElementById('lf-worker').style.display=mode==='worker'?'block':'none';
-  document.getElementById('lf-admin').style.display=mode==='admin'?'block':'none';
-  document.getElementById('ltab-worker').classList.toggle('on',mode==='worker');
-  document.getElementById('ltab-admin').classList.toggle('on',mode==='admin');
+  loginMode = mode;
+  document.getElementById('lf-worker').style.display = mode==='worker'?'block':'none';
+  document.getElementById('lf-admin').style.display  = mode==='admin'?'block':'none';
+  document.getElementById('ltab-worker').classList.toggle('on', mode==='worker');
+  document.getElementById('ltab-admin').classList.toggle('on',  mode==='admin');
   document.getElementById('lerr').style.display='none';
 }
 async function loginWorkerModal(){
-  const ph=document.getElementById('wp-phone-modal').value.trim();
-  if(!ph){toast('Enter your registered phone number.','er');return;}
-  document.getElementById('wp-phone').value=ph;
-  closeLogin();
-  nav('wportal');
-  await workerLogin();
+  const ph = document.getElementById('wp-phone-modal').value.trim();
+  const pw = document.getElementById('wp-pw-modal').value.trim();
+  if(!ph || !pw){toast('Phone and password required.','er');return;}
+  
+  try {
+    if(!DEMO && SB) {
+      const {data, error} = await SB.from('workers').select('*').eq('phone', ph).eq('password', pw).maybeSingle();
+      if(error) throw error;
+      if(!data) { document.getElementById('lerr').style.display='block'; return; }
+      workerUser = data;
+    } else {
+      workerUser = DW.find(w => w.phone === ph) || DW[0];
+    }
+    closeLogin();
+    nav('wportal');
+    updAvail();
+    loadWpOrders();
+    toast('Welcome back, ' + workerUser.name, 'ok');
+  } catch(e) {
+    document.getElementById('lerr').style.display='block';
+  }
 }
 
-/* Secret admin shortcut */
+/* ══ HIDDEN ADMIN SHORTCUT ══ */
 document.addEventListener('keydown',function(e){
   if(e.ctrlKey&&e.shiftKey&&e.key==='A'){
     document.getElementById('loginMod').classList.add('on');
