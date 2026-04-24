@@ -879,6 +879,23 @@ async function init() {
       DEMO=false;
     }
   } catch(e){console.warn('Demo mode');}
+  
+  // Check for saved session
+  const saved = localStorage.getItem('gsh_admin');
+  if(saved){
+    try {
+      const {u, exp} = JSON.parse(saved);
+      if(Date.now() < exp){
+        adminUser = u;
+        const who = document.getElementById('adm-who');
+        if(who) who.textContent = u.name + ' (' + u.role + ')';
+        nav('admin');
+      } else {
+        localStorage.removeItem('gsh_admin');
+      }
+    } catch(e){}
+  }
+
   try { await loadSkills(); } catch(e){}
   buildPills();
   buildPicker();
@@ -1227,7 +1244,8 @@ function wpTab(t,el){
 
 async function loadWpOrders(){
   if(!workerUser)return;
-  const box=document.getElementById('wp-content');
+  const box = document.getElementById('wp-orders') || document.getElementById('wp-content');
+  if(!box) return;
   box.innerHTML='<div class="sp"><div class="spin"></div></div>';
   let orders=[];
   try{
@@ -1243,10 +1261,9 @@ async function loadWpOrders(){
       orders=DO.filter(o=>stats.includes(o.status)&&(curWpTab==='new'||(o.worker_id===workerUser.id)));
     }
   }catch(e){orders=[];}
-  if(!orders.length){
-    box.innerHTML=`<div class="empty"><div class="empi">${curWpTab==='new'?'📭':'✅'}</div><h3>${curWpTab==='new'?'No New Orders':'No Jobs Here'}</h3><p>${curWpTab==='new'?'Check back for new assignments.':'Jobs appear here.'}</p></div>`;
-    return;
-  }
+  const cnt = document.getElementById('wp-cnt');
+  if(cnt) cnt.textContent = orders.length;
+  if(!orders.length){box.innerHTML=`<div class="empty"><div class="empi">📋</div><h3>No ${curWpTab} jobs</h3><p>Jobs will appear here.</p></div>`;return;}
   box.innerHTML=orders.map(o=>{
     const acts=[];
     if(curWpTab==='new') acts.push(`<button class="asm ag" onclick="wAccept('${o.id}')">✓ Accept Job</button>`);
@@ -1445,6 +1462,9 @@ async function tryLogin(){
     }
 
     adminUser = adm;
+    // Save session for 24 hours
+    localStorage.setItem('gsh_admin', JSON.stringify({u: adm, exp: Date.now() + 86400000}));
+    
     const who = document.getElementById('adm-who');
     if(who) who.textContent = adm.name + ' (' + adm.role + ')';
     
@@ -1457,7 +1477,7 @@ async function tryLogin(){
     console.error('Login error:', e);
   }
 }
-function adminOut(){adminUser=null;nav('home');}
+function adminOut(){adminUser=null;localStorage.removeItem('gsh_admin');nav('home');}
 
 /* ══ ADMIN DASHBOARD ══ */
 async function loadAdmin(){
@@ -1502,8 +1522,8 @@ function renderAWorkers(box){
           <span>📞 ${x(w.phone)}</span><span>📍 ${x(w.location||'N/A')}</span>
           <span>🛠 ${(w.skills||[]).map(x).join(', ')||'None'}</span>
           <span>${w.years_experience||0}yrs</span>
-          ${w.id_doc_url?'<span style="color:var(--ok)">🪪 ID on file</span>':'<span style="color:var(--er)">⚠ No ID</span>'}
-          ${w.photo_url?'<span style="color:var(--ok)">📷 Photo</span>':''}
+          ${w.id_doc_url?`<a href="${x(w.id_doc_url)}" target="_blank" style="color:var(--ok)">🪪 View ID</a>`:'<span style="color:var(--er)">⚠ No ID</span>'}
+          ${w.photo_url?`<a href="${x(w.photo_url)}" target="_blank" style="color:var(--ok)">📷 View Photo</a>`:''}
           <span class="sta sta-${w.status}">${w.status}</span>
         </div>
       </div>
@@ -1521,6 +1541,7 @@ function renderAOrders(box){
   box.innerHTML=allOrders.map(o=>{
     const wk=o.workers;
     const acts=[];
+    if(o.status==='pending') acts.push(`<button class="asm ab" onclick="curAdminTab='assign';renderAdmin()">Assign Worker</button>`);
     if(!['completed','cancelled'].includes(o.status)) acts.push(`<button class="asm ag" onclick="aSetOrder('${o.id}','completed')">✓ Complete</button>`);
     if(!['cancelled'].includes(o.status)) acts.push(`<button class="asm ar" onclick="aSetOrder('${o.id}','cancelled')">Cancel</button>`);
     return `<div class="orow">
@@ -1652,11 +1673,35 @@ async function delAdmin(id){
 
 async function setStatus(id,status){
   try{
-    if(!DEMO&&SB){const {error}=await SB.from('workers').update({status}).eq('id',id);if(error)throw error;}
-    const w=adminW.find(w=>w.id===id);if(w)w.status=status;
+    let pass = null;
+    if(status === 'approved'){
+      // Generate a simple password for the worker
+      pass = Math.random().toString(36).slice(-8);
+    }
+
+    if(!DEMO&&SB){
+      const update = {status};
+      if(pass) update.password = pass;
+      const {error}=await SB.from('workers').update(update).eq('id',id);
+      if(error)throw error;
+    }
+    
+    const w=adminW.find(w=>w.id===id);
+    if(w) w.status=status;
+    
     document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
-    renderAdmin();fetchWorkers();
-    toast('Worker '+(status==='approved'?'approved ✓':'rejected'),status==='approved'?'ok':'er');
+    renderAdmin();
+    fetchWorkers();
+    
+    if(status==='approved'){
+      const msg = 'Worker approved! ✓' + (pass ? ' Temporary Password: ' + pass : '');
+      toast(msg, 'ok');
+      // In a real app, you would send this via SMS/Email API here
+      console.log('NOTIFICATION: Worker ' + w?.name + ' approved. Credentials: ' + w?.phone + ' / ' + pass);
+      if(pass) alert('WORKER APPROVED!\n\nPlease send these credentials to the worker:\nPhone: ' + w?.phone + '\nPassword: ' + pass);
+    } else {
+      toast('Worker rejected', 'er');
+    }
   }catch(e){toast('Failed.','er');}
 }
 
@@ -1724,14 +1769,15 @@ function switchLoginMode(mode){
 async function loginWorkerModal(){
   const ph = document.getElementById('wp-phone-modal').value.trim();
   const pw = document.getElementById('wp-pw-modal').value.trim();
+  const err = document.getElementById('lerr');
   if(!ph || !pw){toast('Phone and password required.','er');return;}
   
   try {
     if(!DEMO && SB) {
-      const {data, error} = await SB.from('workers').select('*').eq('phone', ph).eq('password', pw).maybeSingle();
+      const {data, error} = await SB.from('workers').select('*,worker_skills(category_id),work_history(*)').eq('phone', ph).eq('password', pw).maybeSingle();
       if(error) throw error;
-      if(!data) { document.getElementById('lerr').style.display='block'; return; }
-      workerUser = data;
+      if(!data) { if(err) err.style.display='block'; return; }
+      workerUser = {...data, skills:(data.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean)};
     } else {
       workerUser = DW.find(w => w.phone === ph) || DW[0];
     }
@@ -1741,7 +1787,7 @@ async function loginWorkerModal(){
     loadWpOrders();
     toast('Welcome back, ' + workerUser.name, 'ok');
   } catch(e) {
-    document.getElementById('lerr').style.display='block';
+    if(err) err.style.display='block';
   }
 }
 
