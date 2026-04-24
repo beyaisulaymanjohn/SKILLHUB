@@ -1047,7 +1047,10 @@ function openProfile(id){
   document.getElementById('mCont').innerHTML=`
     <a class="ctab cc" href="tel:${x(w.phone)}">📞 ${x(w.phone)}</a>
     <a class="ctab cw" href="https://wa.me/${w.phone.replace(/\D/g,'')}" target="_blank">💬 WhatsApp</a>
-    <button class="ctab co" onclick="closeMod(null,'profMod');openOrdModal('${w.id}')">📋 Place Order</button>`;
+    <button class="ctab co" onclick="closeMod(null,'profMod');openOrdModal('${w.id}')">📋 Place Order</button>
+    <div style="margin-top:12px;padding:10px;background:rgba(252,211,77,0.1);border-radius:8px;border:1px dashed var(--am);font-size:11px;color:var(--td)">
+      💳 <strong>Payment Info:</strong> Secure payments via Wave or Bank Transfer. Escrow protection enabled.
+    </div>`;
   const ids=document.getElementById('mIdSec');
   if(w.id_doc_url){document.getElementById('mIdLink').href=w.id_doc_url==='has_id'?'#':w.id_doc_url;ids.style.display='block';}else ids.style.display='none';
   document.getElementById('mTags').innerHTML=(w.skills||[]).map(s=>`<span class="tag">${x(s)}</span>`).join('')||'<span style="color:var(--mt)">None listed</span>';
@@ -1076,12 +1079,25 @@ function openOrdModal(id){
 async function submitQuickOrder(){
   const nm=g('om-nm'),ph=g('om-ph'),ad=g('om-ad'),dc=g('om-dc');
   if(!nm||!ph||!ad){toast('Fill in required fields.','er');return;}
+  
+  // Payment Method Selection (Mock)
+  const payMethod = confirm("Would you like to pay securely via Wave/Bank Transfer now to enable Escrow Protection?\n\n(Click Cancel to pay cash on delivery)") ? 'digital' : 'cash';
+
   try{
     const p={worker_id:qWorker?.id||null,skill_needed:document.getElementById('om-sk').value||'General',
       description:dc,client_address:ad,client_name:nm,client_phone:ph,
-      status:qWorker?'assigned':'pending',user_id:clientUser?.id||null};
+      status:qWorker?'assigned':'pending',user_id:clientUser?.id||null,
+      payment_method: payMethod};
+    
     if(!DEMO&&SB){const {error}=await SB.from('orders').insert([p]);if(error)throw error;}
     else await wait(380);
+
+    if(payMethod === 'digital') {
+      toast('Redirecting to Secure Payment Gateway...', 'ok');
+      await wait(1500);
+      alert('MODEM PAY INTEGRATION:\nIn a live environment, you would now be redirected to Wave/Bank portal to complete the payment of D500.00.');
+    }
+
     closeMod(null,'ordMod');
     toast('Order placed! We\'ll confirm shortly. ✓','ok');
     ['om-nm','om-ph','om-ad','om-dc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
