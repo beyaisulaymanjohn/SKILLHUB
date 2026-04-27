@@ -399,6 +399,80 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 [data-theme="light"] .hero::before{background:linear-gradient(135deg,rgba(206,17,38,.12) 0%,rgba(245,245,240,.75) 40%,rgba(245,245,240,.98) 100%)!important}
 [data-theme="light"] .wsc-img{filter:brightness(.88)}
 
+/* ══ PAYMENT SYSTEM ══ */
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.pay-opt{background:var(--sur);border:2px solid var(--b);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.pay-opt:hover{border-color:var(--bl);transform:translateY(-1px)}
+.pay-opt.sel{border-color:var(--am);background:var(--ad)}
+.pay-opt-ic{font-size:26px;margin-bottom:6px;display:block}
+.pay-opt-nm{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx)}
+.pay-opt-desc{font-size:9px;color:var(--mt);margin-top:3px}
+.pay-opt.sel .pay-opt-nm{color:var(--am)}
+.pay-opt .sel-badge{display:none;position:absolute;top:6px;right:6px;background:var(--am);color:#000;font-size:9px;font-weight:700;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center}
+.pay-opt.sel .sel-badge{display:flex}
+.pay-summary{background:var(--card);border:1px solid var(--b);border-radius:9px;padding:14px;margin-bottom:16px}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;color:var(--td)}
+.pay-row.total{border-top:1px solid var(--b);padding-top:10px;margin-top:6px;font-weight:700;color:var(--tx);font-size:14px}
+.pay-row .pm-am{color:var(--am);font-weight:600}
+.pay-row .pm-lb{flex:1}
+.pay-srv-fee{font-size:10px;color:var(--mt);margin-top:6px;font-style:italic}
+.pay-wave-box{background:linear-gradient(135deg,#1DC3E3 0%,#0ABAB5 100%);border-radius:10px;padding:18px;color:#fff;text-align:center;margin-bottom:14px;display:none}
+.pay-wave-box.on{display:block}
+.pay-wave-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;text-transform:uppercase;margin-bottom:4px}
+.pay-wave-sub{font-size:12px;opacity:.85;margin-bottom:12px}
+.pay-wave-phone{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;text-align:center;outline:none;margin-bottom:10px;width:100%}
+.pay-wave-phone::placeholder{color:rgba(255,255,255,.5)}
+.pay-wave-ussd{background:rgba(0,0,0,.2);border-radius:7px;padding:10px;font-size:14px;font-weight:600;letter-spacing:1px;margin-bottom:10px}
+.pay-wave-status{font-size:12px;opacity:.9;min-height:20px}
+.pay-bank-box{border:1px solid var(--bl);border-radius:10px;padding:16px;margin-bottom:14px;display:none;background:var(--sur)}
+.pay-bank-box.on{display:block}
+.pay-bank-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12px;color:var(--td);border-bottom:1px solid var(--b)}
+.pay-bank-row:last-child{border-bottom:none}
+.pay-bank-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mt);width:90px;flex-shrink:0}
+.pay-bank-val{color:var(--tx);font-weight:500}
+.pay-cash-box{border:1px dashed var(--bl);border-radius:10px;padding:16px;margin-bottom:14px;text-align:center;display:none}
+.pay-cash-box.on{display:block}
+.pay-cash-ic{font-size:28px;margin-bottom:6px}
+.pay-cash-note{font-size:12px;color:var(--td);line-height:1.6}
+.pay-escrow-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:100px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--ok);margin-bottom:14px}
+.pay-status-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:100px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.pay-st-pending{background:rgba(245,158,11,.1);color:var(--am)}
+.pay-st-escrow{background:rgba(62,110,176,.1);color:var(--inf)}
+.pay-st-paid{background:rgba(34,197,94,.1);color:var(--ok)}
+.pay-st-released{background:rgba(34,197,94,.15);color:var(--ok);border:1px solid rgba(34,197,94,.25)}
+.pay-st-refunded{background:rgba(239,68,68,.1);color:var(--er)}
+.pay-st-unpaid{background:rgba(239,68,68,.08);color:var(--er)}
+/* Worker Earnings */
+.earn-card{background:var(--card);border:1px solid var(--b);border-radius:10px;padding:16px;margin-bottom:10px}
+.earn-bal{text-align:center;margin-bottom:16px}
+.earn-bal-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--mt)}
+.earn-bal-amt{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;color:var(--am);line-height:1.1;margin-top:4px}
+.earn-bal-curr{font-size:16px;color:var(--td);font-weight:400}
+.earn-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.earn-stat{background:var(--sur);border:1px solid var(--b);border-radius:8px;padding:10px;text-align:center}
+.earn-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--tx)}
+.earn-stat-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mt);margin-top:2px}
+.earn-tx{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--b);font-size:12px}
+.earn-tx:last-child{border-bottom:none}
+.earn-tx-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.earn-tx-icon.in{background:rgba(34,197,94,.1);color:var(--ok)}
+.earn-tx-icon.out{background:rgba(239,68,68,.08);color:var(--er)}
+.earn-tx-info{flex:1;min-width:0}
+.earn-tx-desc{font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.earn-tx-date{font-size:10px;color:var(--mt);margin-top:1px}
+.earn-tx-amt{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;flex-shrink:0}
+.earn-tx-amt.pos{color:var(--ok)}.earn-tx-amt.neg{color:var(--er)}
+/* Admin Payment Stats */
+.pay-admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.pay-admin-stat{background:var(--card);border:1px solid var(--b);border-radius:9px;padding:14px;text-align:center}
+.pay-admin-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--am)}
+.pay-admin-stat-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--mt);margin-top:4px}
+@media(max-width:640px){
+  .pay-methods{grid-template-columns:1fr}
+  .pay-admin-stats{grid-template-columns:repeat(2,1fr)}
+  .earn-stats{grid-template-columns:1fr 1fr 1fr}
+}
+
 </style>
 </head>
 <body>
@@ -593,8 +667,11 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
         <div style="background:var(--card);border:1px solid var(--b);border-radius:11px;padding:22px;margin-bottom:20px">
           <div class="shtit">PLACE AN ORDER</div>
           <div class="frow">
-            <div class="fg"><label class="fl">Skill Needed *</label><select class="fse" id="ord-skill"><option value="">Select…</option></select></div>
+            <div class="fg"><label class="fl">Skill Needed *</label><select class="fse" id="ord-skill" onchange="updateOrderPrice()"><option value="">Select…</option></select></div>
             <div class="fg"><label class="fl">Preferred Date/Time</label><input class="fi" id="ord-dt" type="datetime-local"></div>
+          </div>
+          <div id="ord-price-display" style="display:none;background:var(--sur);border:1px solid var(--bl);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--td)">
+            💰 Service fee: <strong id="ord-price-val" style="color:var(--am)">D0</strong> + Platform fee (5%): <strong id="ord-fee-val" style="color:var(--am)">D0</strong> = <strong id="ord-total-val" style="color:var(--tx)">D0</strong>
           </div>
           <div class="fg"><label class="fl">Your Address *</label><input class="fi" id="ord-addr" placeholder="Where should the worker come?"></div>
           <div class="fg"><label class="fl">Describe the Job *</label><textarea class="fta" id="ord-desc" placeholder="What needs to be done?"></textarea></div>
@@ -627,6 +704,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
         <button class="pt on" onclick="wpTab('new',this)">🔔 New Orders</button>
         <button class="pt" onclick="wpTab('active',this)">⚡ Active</button>
         <button class="pt" onclick="wpTab('done',this)">✅ Completed</button>
+        <button class="pt" onclick="wpTab('earnings',this)">💰 Earnings</button>
       </div>
       <div id="wp-content"><div class="sp"><div class="spin"></div></div></div>
     </div>
@@ -728,6 +806,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       <button class="tb" onclick="aTab('rejected',this)">Rejected</button>
       <button class="tb" onclick="aTab('orders',this)">📋 Orders <span class="cbg" id="ocnt">0</span></button>
       <button class="tb" onclick="aTab('assign',this)">🔀 Assign</button>
+      <button class="tb" onclick="aTab('payments',this)">💳 Payments <span class="cbg" id="paycnt">0</span></button>
       <button class="tb" onclick="aTab('skills',this)">🛠 Skills</button>
       <button class="tb" onclick="aTab('admins',this)">👥 Admins</button>
     </div>
@@ -770,6 +849,99 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       <div class="fg"><label class="fl">Your Address *</label><input class="fi" id="om-ad" placeholder="Where to come?"></div>
       <div class="fg"><label class="fl">Describe the Job *</label><textarea class="fta" id="om-dc" placeholder="What needs to be done?"></textarea></div>
       <div class="brow"><button class="btn bg" onclick="closeMod(null,'ordMod')">Cancel</button><button class="btn bp" onclick="submitQuickOrder()">Send Request ✓</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAYMENT MODAL ═══ -->
+<div class="ov" id="payMod" onclick="closeMod(event,'payMod')">
+  <div class="modal" style="max-width:540px">
+    <div class="mhd" style="padding-bottom:14px">
+      <div class="mtb"><div class="mn">PAYMENT</div><div class="msk" id="pay-worker-name"></div></div>
+      <button class="xb" onclick="closeMod(null,'payMod')">✕</button>
+    </div>
+    <div class="mbd" style="padding-top:0">
+      <div class="pay-escrow-badge">🔒 Escrow Protection — Your money is safe until job is done</div>
+      <div class="shtit" style="font-size:14px;margin-bottom:10px">SELECT PAYMENT METHOD</div>
+      <div class="pay-methods">
+        <div class="pay-opt sel" onclick="selectPayMethod('wave',this)" id="pm-wave">
+          <div class="sel-badge">✓</div>
+          <span class="pay-opt-ic">📱</span>
+          <div class="pay-opt-nm">Wave</div>
+          <div class="pay-opt-desc">Mobile Money</div>
+        </div>
+        <div class="pay-opt" onclick="selectPayMethod('bank',this)" id="pm-bank">
+          <div class="sel-badge">✓</div>
+          <span class="pay-opt-ic">🏦</span>
+          <div class="pay-opt-nm">Bank Transfer</div>
+          <div class="pay-opt-desc">Direct deposit</div>
+        </div>
+        <div class="pay-opt" onclick="selectPayMethod('cash',this)" id="pm-cash">
+          <div class="sel-badge">✓</div>
+          <span class="pay-opt-ic">💵</span>
+          <div class="pay-opt-nm">Cash</div>
+          <div class="pay-opt-desc">Pay on site</div>
+        </div>
+      </div>
+      <div class="pay-summary" id="pay-summary">
+        <div class="pay-row"><span class="pm-lb" id="pay-skill-label">Service Fee</span><span class="pm-am" id="pay-skill-amt">D500.00</span></div>
+        <div class="pay-row"><span class="pm-lb">Platform Fee (5%)</span><span class="pm-am" id="pay-fee-amt">D25.00</span></div>
+        <div class="pay-row"><span class="pm-lb">Escrow Security</span><span class="pm-am" style="color:var(--ok)">FREE</span></div>
+        <div class="pay-row total"><span class="pm-lb">Total</span><span class="pm-am" id="pay-total-amt">D525.00</span></div>
+        <div class="pay-srv-fee">Service fee covers worker assignment, quality guarantee, and support. Refundable if not satisfied.</div>
+      </div>
+      <!-- Wave -->
+      <div class="pay-wave-box on" id="pay-wave-box">
+        <div class="pay-wave-title">Wave Pay</div>
+        <div class="pay-wave-sub">Enter your Wave phone number to complete payment</div>
+        <input class="pay-wave-phone" id="pay-wave-phone" type="tel" placeholder="e.g. 220 7XX XXXX" maxlength="15">
+        <div class="pay-wave-ussd">Dial *165# → Pay Merchant → Enter Code</div>
+        <div class="pay-wave-status" id="pay-wave-status">Tap "Confirm Payment" to receive your USSD code</div>
+      </div>
+      <!-- Bank -->
+      <div class="pay-bank-box" id="pay-bank-box">
+        <div class="shtit" style="font-size:13px;margin-bottom:10px">BANK TRANSFER DETAILS</div>
+        <div class="pay-bank-row"><span class="pay-bank-lbl">Bank</span><span class="pay-bank-val">Trust Bank Ltd (Trust Bank Gambia)</span></div>
+        <div class="pay-bank-row"><span class="pay-bank-lbl">Account</span><span class="pay-bank-val">GamSkillHub Agency</span></div>
+        <div class="pay-bank-row"><span class="pay-bank-lbl">Number</span><span class="pay-bank-val">001-234-567-890</span></div>
+        <div class="pay-bank-row"><span class="pay-bank-lbl">Reference</span><span class="pay-bank-val" id="pay-bank-ref">GSH-000000</span></div>
+        <div class="pay-bank-row"><span class="pay-bank-lbl">Amount</span><span class="pay-bank-val" id="pay-bank-amt">D525.00</span></div>
+        <div style="margin-top:10px;font-size:11px;color:var(--td);line-height:1.6">After transferring, your order will be confirmed within 1-2 hours during business days. Use the reference code above.</div>
+      </div>
+      <!-- Cash -->
+      <div class="pay-cash-box" id="pay-cash-box">
+        <div class="pay-cash-ic">💵</div>
+        <div class="pay-cash-note">Pay the worker directly on-site in cash. <strong>No advance payment needed.</strong> The platform fee of <strong id="pay-cash-fee">D25.00</strong> will be collected separately.</div>
+      </div>
+      <div class="brow">
+        <button class="btn bg" onclick="closeMod(null,'payMod')">Cancel</button>
+        <button class="btn bp" id="pay-confirm-btn" onclick="confirmPayment()">Confirm Payment ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ WORKER PAYOUT MODAL ═══ -->
+<div class="ov" id="payoutMod" onclick="closeMod(event,'payoutMod')">
+  <div class="modal" style="max-width:460px">
+    <div class="mhd" style="padding-bottom:14px">
+      <div class="mtb"><div class="mn">REQUEST PAYOUT</div><div class="msk">Withdraw your earnings</div></div>
+      <button class="xb" onclick="closeMod(null,'payoutMod')">✕</button>
+    </div>
+    <div class="mbd" style="padding-top:0">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--mt)">Available Balance</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:var(--am);margin-top:4px" id="payout-bal">D0.00</div>
+      </div>
+      <div class="fg"><label class="fl">Payout Amount (Dalasi)</label><input class="fi" id="payout-amt" type="number" placeholder="Enter amount"></div>
+      <div class="fg"><label class="fl">Payout Method</label>
+        <select class="fse" id="payout-method">
+          <option value="wave">Wave Mobile Money</option>
+          <option value="bank">Bank Transfer</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Receiving Phone/Account</label><input class="fi" id="payout-to" type="tel" placeholder="e.g. 220 7XX XXXX"></div>
+      <div class="brow"><button class="btn bg" onclick="closeMod(null,'payoutMod')">Cancel</button><button class="btn bp" onclick="submitPayout()">Request Payout ✓</button></div>
     </div>
   </div>
 </div>
@@ -861,7 +1033,7 @@ const DO = [
 
 /* ══ STATE ══ */
 let SB=null, DEMO=true;
-let workers=[], adminW=[], allOrders=[], skills=[...DEFAULT_SKILLS];
+let workers=[], adminW=[], allOrders=[], allPayments=[], skills=[...DEFAULT_SKILLS];
 let curFilter='all', curStep=1, pickedSkills=[], weN=0;
 let curAdminTab='pending', adminUser=null;
 let clientUser=null, workerUser=null;
@@ -870,6 +1042,30 @@ let rateOId=null, rateWId=null, rateScore=0;
 let qWorker=null;
 let UF={photo:null,id:null,cert:[],port:[]};
 const WC={}; // worker cache — avoids JSON in onclick
+
+/* ══ PAYMENT CONFIG ══ */
+const PAY_CFG = {
+  commission_rate: 0.05,   // 5% platform fee
+  min_service_fee: 200,    // D200 minimum service fee
+  currency: 'D',           // Dalasi
+  bank_name: 'Trust Bank Ltd',
+  bank_account: 'GamSkillHub Agency',
+  bank_number: '001-234-567-890',
+};
+// Default service fees per skill category
+const SKILL_PRICES = {
+  'Plumbing': 500, 'Electrical': 600, 'Carpentry': 700, 'Masonry': 800,
+  'Painting': 400, 'Roofing': 1000, 'Tiling': 600, 'Welding': 800,
+  'AC/HVAC': 500, 'Security Systems': 700, 'Landscaping': 500, 'General Labour': 300,
+  'Barber (Home)': 150, 'Home Cleaning': 350, 'Pest Control': 400,
+  'Home Nursing': 450, 'Laundry Service': 200, 'Auto Mechanic': 500,
+  'Solar Energy': 1500, 'IT/Tech Support': 400, 'General': 300,
+};
+const DEFAULT_PRICE = 500;
+
+let pendingPayment = null; // {orderId, workerId, skill, clientName, clientPhone, address, description, serviceFee, commission, total, paymentMethod}
+let selectedPayMethod = 'wave';
+let workerEarnings = { balance: 0, total_earned: 0, pending_payout: 0, transactions: [] };
 
 /* ══ INIT ══ */
 async function init() {
@@ -1049,7 +1245,7 @@ function openProfile(id){
     <a class="ctab cw" href="https://wa.me/${w.phone.replace(/\D/g,'')}" target="_blank">💬 WhatsApp</a>
     <button class="ctab co" onclick="closeMod(null,'profMod');openOrdModal('${w.id}')">📋 Place Order</button>
     <div style="margin-top:12px;padding:10px;background:rgba(252,211,77,0.1);border-radius:8px;border:1px dashed var(--am);font-size:11px;color:var(--td)">
-      💳 <strong>Payment Info:</strong> Secure payments via Wave or Bank Transfer. Escrow protection enabled.
+      💳 <strong>Payment Info:</strong> Secure payments via Wave or Bank Transfer. Escrow protection enabled.<br><span style="font-size:10px;color:var(--mt)">Service fee: ${PAY_CFG.currency}${(SKILL_PRICES[(w.skills||[])[0]]||DEFAULT_PRICE).toLocaleString()}.00</span>
     </div>`;
   const ids=document.getElementById('mIdSec');
   if(w.id_doc_url){document.getElementById('mIdLink').href=w.id_doc_url==='has_id'?'#':w.id_doc_url;ids.style.display='block';}else ids.style.display='none';
@@ -1079,29 +1275,19 @@ function openOrdModal(id){
 async function submitQuickOrder(){
   const nm=g('om-nm'),ph=g('om-ph'),ad=g('om-ad'),dc=g('om-dc');
   if(!nm||!ph||!ad){toast('Fill in required fields.','er');return;}
-  
-  // Payment Method Selection (Mock)
-  const payMethod = confirm("Would you like to pay securely via Wave/Bank Transfer now to enable Escrow Protection?\n\n(Click Cancel to pay cash on delivery)") ? 'digital' : 'cash';
+  const skill = document.getElementById('om-sk').value || 'General';
+  const serviceFee = SKILL_PRICES[skill] || DEFAULT_PRICE;
+  const commission = Math.round(serviceFee * PAY_CFG.commission_rate);
+  const total = serviceFee + commission;
 
-  try{
-    const p={worker_id:qWorker?.id||null,skill_needed:document.getElementById('om-sk').value||'General',
-      description:dc,client_address:ad,client_name:nm,client_phone:ph,
-      status:qWorker?'assigned':'pending',user_id:clientUser?.id||null,
-      payment_method: payMethod};
-    
-    if(!DEMO&&SB){const {error}=await SB.from('orders').insert([p]);if(error)throw error;}
-    else await wait(380);
-
-    if(payMethod === 'digital') {
-      toast('Redirecting to Secure Payment Gateway...', 'ok');
-      await wait(1500);
-      alert('MODEM PAY INTEGRATION:\nIn a live environment, you would now be redirected to Wave/Bank portal to complete the payment of D500.00.');
-    }
-
-    closeMod(null,'ordMod');
-    toast('Order placed! We\'ll confirm shortly. ✓','ok');
-    ['om-nm','om-ph','om-ad','om-dc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  }catch(e){toast('Failed: '+(e.message||'Try again.'),'er');}
+  // Store payment data and open payment modal
+  pendingPayment = {
+    workerId: qWorker?.id || null,
+    skill, clientName: nm, clientPhone: ph, address: ad, description: dc,
+    serviceFee, commission, total, paymentMethod: null
+  };
+  closeMod(null,'ordMod');
+  openPaymentModal(skill, qWorker?.name || 'Assigned Worker', serviceFee, commission, total);
 }
 
 /* ══ MODAL HELPERS ══ */
@@ -1142,16 +1328,16 @@ async function placeOrder(){
   if(!clientUser){toast('Please log in first.','er');return;}
   const sk=g('ord-skill'),ad=g('ord-addr'),dc=g('ord-desc');
   if(!sk||!ad){toast('Skill and address are required.','er');return;}
-  try{
-    const p={user_id:clientUser.id,skill_needed:sk,description:dc,client_address:ad,
-      client_name:clientUser.name,client_phone:clientUser.phone,status:'pending',
-      scheduled_at:document.getElementById('ord-dt').value||null};
-    if(!DEMO&&SB){const {error}=await SB.from('orders').insert([p]);if(error)throw error;}
-    else await wait(380);
-    toast('Order placed! ✓','ok');
-    ['ord-skill','ord-addr','ord-desc','ord-dt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    clTab('track',document.querySelectorAll('.pt')[1]);
-  }catch(e){toast('Failed: '+(e.message||'Try again.'),'er');}
+  const serviceFee = SKILL_PRICES[sk] || DEFAULT_PRICE;
+  const commission = Math.round(serviceFee * PAY_CFG.commission_rate);
+  const total = serviceFee + commission;
+
+  pendingPayment = {
+    workerId: null,
+    skill: sk, clientName: clientUser.name, clientPhone: clientUser.phone, address: ad, description: dc,
+    serviceFee, commission, total, paymentMethod: null
+  };
+  openPaymentModal(sk, 'Any Available Worker', serviceFee, commission, total);
 }
 
 async function loadClientOrders(){
@@ -1170,6 +1356,10 @@ async function loadClientOrders(){
   document.getElementById('cl-cnt').textContent=orders.length;
   if(!orders.length){box.innerHTML='<div class="empty"><div class="empi">📋</div><h3>No Bookings Yet</h3><p>Place your first order to get started.</p></div>';return;}
   box.innerHTML=orders.map(o=>{
+    const w=o.workers;
+    const pm=o.payment_method||'cash';
+    const ps=o.payment_status||(pm==='cash'?'pending':'pending');
+    const payBadge = `<span class="pay-status-badge pay-st-${ps}">${pm==='wave'?'📱':pm==='bank'?'🏦':'💵'} ${ps}</span>`;
     const wk=o.workers;
     const acts=[];
     if(o.status==='accepted') acts.push(`<button class="asm ag" onclick="updOrder('${o.id}','worker_arrived')">✓ Worker Arrived</button>`);
@@ -1177,9 +1367,10 @@ async function loadClientOrders(){
     if(o.status==='completed') acts.push(`<button class="asm ab" onclick="openRateMod('${o.id}','${o.worker_id||''}','${x(wk?.name||'')}')">⭐ Rate Worker</button>`);
     if(['pending','assigned'].includes(o.status)) acts.push(`<button class="asm ar" onclick="updOrder('${o.id}','cancelled')">Cancel</button>`);
     return `<div class="oc">
-      <div class="oct"><div class="ocs">${x(o.skill_needed)}</div><span class="sta sta-${o.status}">${o.status.replace('_',' ')}</span></div>
+      <div class="oct"><div class="ocs">${x(o.skill_needed)}</div><span class="sta sta-${o.status}">${o.status.replace('_',' ')}</span> ${payBadge}</div>
       <div class="ocm"><span>📅 ${fd(o.created_at)}</span><span>📍 ${x(o.client_address)}</span>${wk?`<span>👷 ${x(wk.name)}</span>`:'<span>⏳ Awaiting worker</span>'}</div>
       ${o.description?`<div class="ocd">${x(o.description)}</div>`:''}
+      ${o.service_fee?`<div style="font-size:11px;color:var(--am);margin-bottom:6px">💰 ${pm==='wave'?'📱':pm==='bank'?'🏦':'💵'} D${Number(o.service_fee).toLocaleString()} service fee${o.payment_status==='escrow'?' · 🔒 Held in escrow':''}${o.payment_status==='released'?' · ✅ Payment released':''}</div>`:''}
       ${wk&&o.status!=='pending'?`<div class="wk-detail">👷 <strong>${x(wk.name)}</strong> · <a href="tel:${x(wk.phone)}">📞 ${x(wk.phone)}</a>${wk.location?' · 📍 '+x(wk.location):''}${wk.shop_address?' · Shop: '+x(wk.shop_address):''}</div>`:''}
       ${acts.length?`<div class="oca">${acts.join('')}</div>`:''}
     </div>`;
@@ -1255,6 +1446,7 @@ async function toggleAvail(){
 
 function wpTab(t,el){
   curWpTab=t;document.querySelectorAll('.pt').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  if(t==='earnings'){renderWorkerEarnings();return;}
   loadWpOrders();
 }
 
@@ -1522,6 +1714,7 @@ function renderAdmin(){
   if(curAdminTab==='pending'||curAdminTab==='approved'||curAdminTab==='rejected') renderAWorkers(box);
   else if(curAdminTab==='orders') renderAOrders(box);
   else if(curAdminTab==='assign') renderAssign(box);
+  else if(curAdminTab==='payments') renderPayments(box);
   else if(curAdminTab==='skills') renderSkills(box);
   else if(curAdminTab==='admins') renderAdmins(box);
 }
@@ -1719,6 +1912,412 @@ async function setStatus(id,status){
       toast('Worker rejected', 'er');
     }
   }catch(e){toast('Failed.','er');}
+}
+
+/* ══ PAYMENT FUNCTIONS ══ */
+function updateOrderPrice() {
+  const skill = document.getElementById('ord-skill').value;
+  const display = document.getElementById('ord-price-display');
+  if (!skill) { display.style.display = 'none'; return; }
+  const fee = SKILL_PRICES[skill] || DEFAULT_PRICE;
+  const commission = Math.round(fee * PAY_CFG.commission_rate);
+  document.getElementById('ord-price-val').textContent = 'D' + fee.toLocaleString() + '.00';
+  document.getElementById('ord-fee-val').textContent = 'D' + commission.toLocaleString() + '.00';
+  document.getElementById('ord-total-val').textContent = 'D' + (fee + commission).toLocaleString() + '.00';
+  display.style.display = 'block';
+}
+
+function openPaymentModal(skill, workerName, serviceFee, commission, total) {
+  document.getElementById('pay-worker-name').textContent = workerName + ' · ' + skill;
+  document.getElementById('pay-skill-label').textContent = skill + ' Service Fee';
+  document.getElementById('pay-skill-amt').textContent = PAY_CFG.currency + serviceFee.toLocaleString() + '.00';
+  document.getElementById('pay-fee-amt').textContent = PAY_CFG.currency + commission.toLocaleString() + '.00';
+  document.getElementById('pay-total-amt').textContent = PAY_CFG.currency + total.toLocaleString() + '.00';
+  document.getElementById('pay-bank-ref').textContent = 'GSH-' + Date.now().toString(36).toUpperCase();
+  document.getElementById('pay-bank-amt').textContent = PAY_CFG.currency + total.toLocaleString() + '.00';
+  document.getElementById('pay-cash-fee').textContent = PAY_CFG.currency + commission.toLocaleString() + '.00';
+  selectedPayMethod = 'wave';
+  selectPayMethod('wave', document.getElementById('pm-wave'));
+  document.getElementById('pay-wave-phone').value = pendingPayment?.clientPhone || '';
+  document.getElementById('pay-wave-status').textContent = 'Tap "Confirm Payment" to receive your USSD code';
+  document.getElementById('pay-confirm-btn').disabled = false;
+  openMod('payMod');
+}
+
+function selectPayMethod(method, el) {
+  selectedPayMethod = method;
+  document.querySelectorAll('.pay-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('pay-wave-box').classList.toggle('on', method === 'wave');
+  document.getElementById('pay-bank-box').classList.toggle('on', method === 'bank');
+  document.getElementById('pay-cash-box').classList.toggle('on', method === 'cash');
+  document.getElementById('pay-confirm-btn').textContent = method === 'cash' ? 'Place Order (Cash) ✓' : 'Confirm Payment ✓';
+}
+
+async function confirmPayment() {
+  if (!pendingPayment) return;
+  const btn = document.getElementById('pay-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    const pp = pendingPayment;
+    let paymentStatus = 'pending';
+    let payRef = 'GSH-' + Date.now().toString(36).toUpperCase();
+
+    if (selectedPayMethod === 'wave') {
+      const phone = document.getElementById('pay-wave-phone').value.trim();
+      if (!phone) { toast('Enter your Wave phone number', 'er'); btn.disabled = false; btn.textContent = 'Confirm Payment ✓'; return; }
+      // Simulate Wave payment flow
+      document.getElementById('pay-wave-status').textContent = '⏳ Initiating Wave payment...';
+      await wait(1200);
+      document.getElementById('pay-wave-status').textContent = '📱 USSD push sent to ' + phone + '...';
+      await wait(1500);
+      document.getElementById('pay-wave-status').textContent = '✅ Payment of ' + PAY_CFG.currency + pp.total.toLocaleString() + '.00 received!';
+      paymentStatus = 'escrow';
+      payRef = 'WV-' + Date.now().toString(36).toUpperCase();
+    } else if (selectedPayMethod === 'bank') {
+      paymentStatus = 'pending'; // Awaiting bank confirmation
+      payRef = document.getElementById('pay-bank-ref').textContent;
+      toast('Bank transfer initiated! Use reference: ' + payRef, 'ok');
+      await wait(500);
+    } else {
+      // Cash - no advance payment
+      paymentStatus = 'unpaid';
+      payRef = 'CSH-' + Date.now().toString(36).toUpperCase();
+    }
+
+    // Create the order
+    const orderPayload = {
+      worker_id: pp.workerId,
+      skill_needed: pp.skill,
+      description: pp.description,
+      client_address: pp.address,
+      client_name: pp.clientName,
+      client_phone: pp.clientPhone,
+      status: pp.workerId ? 'assigned' : 'pending',
+      user_id: clientUser?.id || null,
+      payment_method: selectedPayMethod,
+      payment_status: paymentStatus,
+      payment_reference: payRef,
+      service_fee: pp.serviceFee,
+      commission: pp.commission,
+      total_amount: pp.total,
+      scheduled_at: document.getElementById('ord-dt')?.value || null,
+    };
+
+    let orderId;
+    if (!DEMO && SB) {
+      const { data, error } = await SB.from('orders').insert([orderPayload]).select().single();
+      if (error) throw error;
+      orderId = data.id;
+    } else {
+      orderId = 'o' + Date.now();
+      orderPayload.id = orderId;
+      orderPayload.created_at = new Date().toISOString();
+      DO.unshift(orderPayload);
+    }
+
+    // Create payment record
+    const paymentPayload = {
+      order_id: orderId,
+      client_name: pp.clientName,
+      client_phone: pp.clientPhone,
+      worker_id: pp.workerId,
+      amount: pp.total,
+      service_fee: pp.serviceFee,
+      commission: pp.commission,
+      worker_payout: pp.serviceFee - pp.commission,
+      method: selectedPayMethod,
+      status: paymentStatus,
+      reference: payRef,
+    };
+
+    if (!DEMO && SB) {
+      await SB.from('payments').insert([paymentPayload]);
+    } else {
+      paymentPayload.id = 'pay' + Date.now();
+      paymentPayload.created_at = new Date().toISOString();
+      allPayments.unshift(paymentPayload);
+    }
+
+    closeMod(null, 'payMod');
+    toast(
+      selectedPayMethod === 'cash'
+        ? 'Order placed! Pay worker D' + pp.serviceFee.toLocaleString() + ' cash on-site. ✓'
+        : selectedPayMethod === 'wave'
+          ? 'Payment confirmed! D' + pp.total.toLocaleString() + '.00 held in escrow. ✓'
+          : 'Order placed! Awaiting bank transfer confirmation.',
+      'ok'
+    );
+
+    // Clear form
+    ['om-nm', 'om-ph', 'om-ad', 'om-dc', 'ord-skill', 'ord-addr', 'ord-desc', 'ord-dt'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    pendingPayment = null;
+
+    // Refresh views
+    if (clientUser) loadClientOrders();
+    fetchWorkers();
+    if (adminUser) loadAdmin();
+
+    // Switch to track tab if in client portal
+    const trackTab = document.querySelectorAll('.pt')[1];
+    if (trackTab && clientUser) clTab('track', trackTab);
+
+  } catch (e) {
+    toast('Payment failed: ' + (e.message || 'Try again.'), 'er');
+    btn.disabled = false;
+    btn.textContent = 'Confirm Payment ✓';
+  }
+}
+
+// Worker earnings tab
+function renderWorkerEarnings() {
+  const box = document.getElementById('wp-content');
+  if (!workerUser) return;
+
+  // Calculate earnings from demo data
+  const completedOrders = (DEMO ? DO : allOrders).filter(o =>
+    o.worker_id === workerUser.id && o.status === 'completed'
+  );
+  const totalEarned = completedOrders.reduce((sum, o) => sum + (Number(o.service_fee) || 0) - (Number(o.commission) || 0), 0);
+  const activeOrders = (DEMO ? DO : allOrders).filter(o =>
+    o.worker_id === workerUser.id && ['assigned', 'accepted', 'worker_arrived'].includes(o.status)
+  );
+  const pendingPayout = activeOrders.reduce((sum, o) => sum + (Number(o.service_fee) || 0) - (Number(o.commission) || 0), 0);
+
+  workerEarnings = { balance: totalEarned - workerEarnings.pending_payout, total_earned: totalEarned, pending_payout: pendingPayout, transactions: [] };
+
+  // Build transaction history
+  (DEMO ? DO : allOrders).filter(o => o.worker_id === workerUser.id && (o.status === 'completed' || o.payment_status)).forEach(o => {
+    workerEarnings.transactions.push({
+      id: o.id, desc: (o.skill_needed || 'Service') + ' - ' + (o.client_name || 'Client'),
+      date: o.completed_at || o.created_at, amount: (Number(o.service_fee) || 0) - (Number(o.commission) || 0),
+      status: o.payment_status || 'pending', method: o.payment_method || 'cash'
+    });
+  });
+
+  box.innerHTML = `
+    <div class="earn-card">
+      <div class="earn-bal">
+        <div class="earn-bal-label">Total Earnings</div>
+        <div class="earn-bal-amt"><span class="earn-bal-curr">D</span>${totalEarned.toLocaleString()}</div>
+      </div>
+      <div class="earn-stats">
+        <div class="earn-stat"><div class="earn-stat-val">${completedOrders.length}</div><div class="earn-stat-lbl">Jobs Done</div></div>
+        <div class="earn-stat"><div class="earn-stat-val">${activeOrders.length}</div><div class="earn-stat-lbl">Active</div></div>
+        <div class="earn-stat"><div class="earn-stat-val">D${pendingPayout.toLocaleString()}</div><div class="earn-stat-lbl">Pending</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:14px">
+        <button class="btn bp" onclick="openPayoutModal()" ${totalEarned <= 0 ? 'disabled' : ''}>Request Payout →</button>
+      </div>
+    </div>
+    <div class="earn-card">
+      <div class="shtit" style="font-size:14px">TRANSACTION HISTORY</div>
+      ${!workerEarnings.transactions.length ? '<div style="text-align:center;padding:30px;color:var(--mt)">No transactions yet. Complete jobs to earn!</div>' :
+        workerEarnings.transactions.map(t => `
+          <div class="earn-tx">
+            <div class="earn-tx-icon ${t.status === 'released' ? 'in' : ''}">${t.status === 'released' ? '💰' : '⏳'}</div>
+            <div class="earn-tx-info">
+              <div class="earn-tx-desc">${x(t.desc)}</div>
+              <div class="earn-tx-date">${fd(t.date)} · ${t.method}</div>
+            </div>
+            <div class="earn-tx-amt pos">+D${t.amount.toLocaleString()}</div>
+          </div>
+        `).join('')
+      }
+    </div>
+    <div style="margin-top:14px;padding:14px;background:var(--card);border:1px solid var(--b);border-radius:9px;font-size:11px;color:var(--td);line-height:1.7">
+      <strong style="color:var(--tx)">How Payments Work:</strong><br>
+      💰 You receive <strong>D${(SKILL_PRICES[(workerUser.skills||[])[0]] || DEFAULT_PRICE).toLocaleString()}</strong> per completed job<br>
+      📊 Platform fee: 5% (D${Math.round((SKILL_PRICES[(workerUser.skills||[])[0]] || DEFAULT_PRICE) * PAY_CFG.commission_rate).toLocaleString()})<br>
+      🔒 Payment held in escrow until client confirms completion<br>
+      📱 Payouts via Wave or Bank Transfer within 24-48 hours
+    </div>
+  `;
+}
+
+function openPayoutModal() {
+  document.getElementById('payout-bal').textContent = 'D' + workerEarnings.total_earned.toLocaleString();
+  document.getElementById('payout-to').value = workerUser?.phone || '';
+  openMod('payoutMod');
+}
+
+async function submitPayout() {
+  const amt = parseFloat(document.getElementById('payout-amt').value);
+  const method = document.getElementById('payout-method').value;
+  const to = document.getElementById('payout-to').value.trim();
+  if (!amt || amt <= 0) { toast('Enter a valid amount', 'er'); return; }
+  if (amt > workerEarnings.total_earned) { toast('Amount exceeds available balance', 'er'); return; }
+  if (!to) { toast('Enter receiving phone/account', 'er'); return; }
+
+  const payoutPayload = {
+    worker_id: workerUser.id,
+    worker_name: workerUser.name,
+    amount: amt,
+    method: method,
+    payout_to: to,
+    status: 'pending',
+    type: 'payout',
+  };
+
+  try {
+    if (!DEMO && SB) {
+      await SB.from('payments').insert([payoutPayload]);
+    } else {
+      payoutPayload.id = 'po' + Date.now();
+      payoutPayload.created_at = new Date().toISOString();
+      allPayments.unshift(payoutPayload);
+    }
+    closeMod(null, 'payoutMod');
+    toast('Payout request of D' + amt.toLocaleString() + '.00 submitted! Processing within 24-48 hours. ✓', 'ok');
+    workerEarnings.pending_payout += amt;
+  } catch (e) {
+    toast('Payout failed: ' + (e.message || 'Try again'), 'er');
+  }
+}
+
+// Admin payment management
+async function renderPayments(box) {
+  let payments = [];
+  try {
+    if (!DEMO && SB) {
+      const { data } = await SB.from('payments').select('*').order('created_at', { ascending: false });
+      payments = data || [];
+    } else {
+      // Build demo payments from orders
+      payments = (DO || []).map(o => ({
+        id: 'pay-' + o.id,
+        order_id: o.id,
+        client_name: o.client_name,
+        worker_id: o.worker_id,
+        amount: o.total_amount || (o.service_fee || 500) + (o.commission || 25),
+        service_fee: o.service_fee || 500,
+        commission: o.commission || 25,
+        worker_payout: (o.service_fee || 500) - (o.commission || 25),
+        method: o.payment_method || 'cash',
+        status: o.payment_status || 'pending',
+        reference: o.payment_reference || 'GSH-DEMO',
+        created_at: o.created_at,
+        type: 'payment',
+      }));
+    }
+  } catch (e) { payments = []; }
+
+  allPayments = payments;
+  const totalRev = payments.filter(p => p.type !== 'payout').reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const totalComm = payments.filter(p => p.type !== 'payout').reduce((s, p) => s + (Number(p.commission) || 0), 0);
+  const escrowAmt = payments.filter(p => p.status === 'escrow').reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const payoutReqs = payments.filter(p => p.type === 'payout' && p.status === 'pending');
+
+  if (document.getElementById('paycnt')) document.getElementById('paycnt').textContent = payoutReqs.length;
+
+  box.innerHTML = `
+    <div class="shtit">PAYMENT DASHBOARD</div>
+    <div class="pay-admin-stats">
+      <div class="pay-admin-stat"><div class="pay-admin-stat-val">D${totalRev.toLocaleString()}</div><div class="pay-admin-stat-lbl">Total Revenue</div></div>
+      <div class="pay-admin-stat"><div class="pay-admin-stat-val">D${totalComm.toLocaleString()}</div><div class="pay-admin-stat-lbl">Platform Fees</div></div>
+      <div class="pay-admin-stat"><div class="pay-admin-stat-val">D${escrowAmt.toLocaleString()}</div><div class="pay-admin-stat-lbl">In Escrow</div></div>
+      <div class="pay-admin-stat"><div class="pay-admin-stat-val">${payoutReqs.length}</div><div class="pay-admin-stat-lbl">Payout Requests</div></div>
+    </div>
+    ${payoutReqs.length ? `
+      <div class="shtit" style="font-size:16px;margin-bottom:10px">PENDING PAYOUTS</div>
+      ${payoutReqs.map(p => `
+        <div class="orow">
+          <div class="ort"><div class="ors">${x(p.worker_name || 'Worker')} - ${x(p.method)}</div></div>
+          <div class="orm"><span>Amount: D${Number(p.amount).toLocaleString()}</span><span>To: ${x(p.payout_to || 'N/A')}</span><span>${fd(p.created_at)}</span></div>
+          <div class="ora">
+            <button class="asm ag" onclick="approvePayout('${p.id}')">✓ Approve</button>
+            <button class="asm ar" onclick="rejectPayout('${p.id}')">✕ Reject</button>
+          </div>
+        </div>
+      `).join('')}
+      <hr class="sep">
+    ` : ''}
+    <div class="shtit" style="font-size:16px;margin-bottom:10px">ALL TRANSACTIONS</div>
+    ${!payments.length ? '<div class="empty"><div class="empi">💳</div><h3>No Payments</h3><p>Payment transactions will appear here.</p></div>' :
+      payments.map(p => `
+        <div class="orow">
+          <div class="ort">
+            <div class="ors">${p.type === 'payout' ? '📤 Payout' : '📥 Payment'}</div>
+            <span class="pay-status-badge pay-st-${p.status}">${p.status}</span>
+            <span style="font-size:10px;color:var(--mt);margin-left:4px">${p.method === 'wave' ? '📱' : p.method === 'bank' ? '🏦' : '💵'} ${p.method || 'cash'}</span>
+          </div>
+          <div class="orm">
+            <span>Client: ${x(p.client_name || 'N/A')}</span>
+            <span>Ref: ${x(p.reference || 'N/A')}</span>
+            <span>${fd(p.created_at)}</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--am)">D${Number(p.amount).toLocaleString()}</span>
+            ${p.type !== 'payout' && p.status === 'escrow' ? `<button class="asm ag" onclick="releasePayment('${p.order_id}','${p.id}')">🔓 Release to Worker</button>` : ''}
+            ${p.type !== 'payout' && p.status === 'escrow' ? `<button class="asm ar" onclick="refundPayment('${p.order_id}','${p.id}')">↩ Refund</button>` : ''}
+          </div>
+        </div>
+      `).join('')
+    }
+  `;
+}
+
+async function releasePayment(orderId, payId) {
+  if (!confirm('Release payment to worker? This cannot be undone.')) return;
+  try {
+    if (!DEMO && SB) {
+      await SB.from('payments').update({ status: 'released', released_at: new Date().toISOString() }).eq('id', payId);
+      await SB.from('orders').update({ payment_status: 'released' }).eq('id', orderId);
+    } else {
+      const p = allPayments.find(x => x.id === payId);
+      if (p) p.status = 'released';
+      const o = DO.find(x => x.id === orderId);
+      if (o) o.payment_status = 'released';
+    }
+    toast('Payment released to worker ✓', 'ok');
+    renderPayments(document.getElementById('adm-content'));
+  } catch (e) { toast('Failed.', 'er'); }
+}
+
+async function refundPayment(orderId, payId) {
+  if (!confirm('Refund this payment to the client?')) return;
+  try {
+    if (!DEMO && SB) {
+      await SB.from('payments').update({ status: 'refunded', refunded_at: new Date().toISOString() }).eq('id', payId);
+      await SB.from('orders').update({ payment_status: 'refunded', status: 'cancelled' }).eq('id', orderId);
+    } else {
+      const p = allPayments.find(x => x.id === payId);
+      if (p) p.status = 'refunded';
+      const o = DO.find(x => x.id === orderId);
+      if (o) { o.payment_status = 'refunded'; o.status = 'cancelled'; }
+    }
+    toast('Payment refunded to client ✓', 'ok');
+    renderPayments(document.getElementById('adm-content'));
+  } catch (e) { toast('Failed.', 'er'); }
+}
+
+async function approvePayout(payId) {
+  try {
+    if (!DEMO && SB) {
+      await SB.from('payments').update({ status: 'approved', approved_at: new Date().toISOString() }).eq('id', payId);
+    } else {
+      const p = allPayments.find(x => x.id === payId);
+      if (p) p.status = 'approved';
+    }
+    toast('Payout approved ✓', 'ok');
+    renderPayments(document.getElementById('adm-content'));
+  } catch (e) { toast('Failed.', 'er'); }
+}
+
+async function rejectPayout(payId) {
+  if (!confirm('Reject this payout request?')) return;
+  try {
+    if (!DEMO && SB) {
+      await SB.from('payments').update({ status: 'rejected' }).eq('id', payId);
+    } else {
+      const p = allPayments.find(x => x.id === payId);
+      if (p) p.status = 'rejected';
+    }
+    toast('Payout rejected', 'er');
+    renderPayments(document.getElementById('adm-content'));
+  } catch (e) { toast('Failed.', 'er'); }
 }
 
 /* ══ UTILS ══ */
