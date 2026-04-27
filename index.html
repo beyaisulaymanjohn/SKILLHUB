@@ -467,10 +467,13 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
 .pay-admin-stat{background:var(--card);border:1px solid var(--b);border-radius:9px;padding:14px;text-align:center}
 .pay-admin-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--am)}
 .pay-admin-stat-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--mt);margin-top:4px}
+/* Admin worker detail grid */
+.acard[style*="flex-direction:column"]{display:flex}
 @media(max-width:640px){
   .pay-methods{grid-template-columns:1fr}
   .pay-admin-stats{grid-template-columns:repeat(2,1fr)}
   .earn-stats{grid-template-columns:1fr 1fr 1fr}
+  .acard[style*="flex-direction:column"]>div:nth-child(2){grid-template-columns:1fr !important}
 }
 
 </style>
@@ -659,7 +662,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
         <div style="font-size:13px;color:var(--td)">Welcome, <span id="cl-hi" style="color:var(--tx);font-weight:600"></span></div>
         <button class="nb" onclick="clientOut()">Log out</button>
       </div>
-      <div class="ptabs">
+      <div class="ptabs" id="cl-ptabs">
         <button class="pt on" onclick="clTab('order',this)">📋 New Order</button>
         <button class="pt" onclick="clTab('track',this)">📍 My Bookings <span class="badge" id="cl-cnt">0</span></button>
       </div>
@@ -700,8 +703,8 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
           <button class="nb" onclick="workerOut()">Log out</button>
         </div>
       </div>
-      <div class="ptabs">
-        <button class="pt on" onclick="wpTab('new',this)">🔔 New Orders</button>
+      <div class="ptabs" id="wp-ptabs">
+        <button class="pt on" onclick="wpTab('new',this)">🔔 New Orders <span class="badge" id="wp-cnt">0</span></button>
         <button class="pt" onclick="wpTab('active',this)">⚡ Active</button>
         <button class="pt" onclick="wpTab('done',this)">✅ Completed</button>
         <button class="pt" onclick="wpTab('earnings',this)">💰 Earnings</button>
@@ -1022,13 +1025,13 @@ const DW = [
   {id:'d6',name:'Baba Sowe',phone:'+220 760 2345',bio:'Professional welder. Gates, grills, roofing frames.',location:'Kanifing',shop_address:'Kanifing Industrial Area',years_experience:15,status:'approved',completed_jobs:98,rating:4.9,rating_count:27,is_available:true,photo_url:'',id_doc_url:'has_id',skills:['Welding','Roofing'],work_history:[{title:'Steel Gate',description:'Double-panel driveway gate'},{title:'Window Grills',description:'12 security grills'}]},
   {id:'d7',name:'Mariama Jobe',phone:'+220 730 1122',bio:'Home barber. Professional haircuts at your doorstep.',location:'Fajara',shop_address:'',years_experience:4,status:'approved',completed_jobs:210,rating:4.8,rating_count:44,is_available:true,photo_url:'',id_doc_url:'has_id',skills:['Barber (Home)'],work_history:[]},
   {id:'d8',name:'Ousman Fatty',phone:'+220 775 3344',bio:'Home cleaning specialist. Deep cleaning offices and homes.',location:'Kololi',shop_address:'',years_experience:5,status:'approved',completed_jobs:132,rating:4.7,rating_count:19,is_available:true,photo_url:'',id_doc_url:'has_id',skills:['Home Cleaning','Pest Control'],work_history:[]},
-  {id:'p1',name:'Isatou Sillah',phone:'+220 710 1111',bio:'',location:'Banjul',years_experience:3,status:'pending',completed_jobs:0,rating:5,rating_count:0,is_available:true,photo_url:'',id_doc_url:'',skills:['Painting','General Labour'],work_history:[]},
-  {id:'p2',name:'Kebba Gaye',phone:'+220 720 2222',bio:'',location:'Fajara',years_experience:7,status:'pending',completed_jobs:0,rating:5,rating_count:0,is_available:true,photo_url:'',id_doc_url:'',skills:['Electrical','Security Systems'],work_history:[]},
+  {id:'p1',name:'Isatou Sillah',phone:'+220 710 1111',email:'isatou.sillah@email.com',bio:'Experienced painter specializing in interior and exterior painting. Quality work at affordable prices.',location:'Banjul',shop_address:'Wellington Street, Banjul',years_experience:3,status:'pending',completed_jobs:0,rating:5,rating_count:0,is_available:true,photo_url:'',id_doc_url:'',skills:['Painting','General Labour'],work_history:[{title:'Office Interior Painting',description:'Full repaint of 6-room office in Banjul'},{title:'House Exterior',description:'Exterior painting of 3-bedroom house'}]},
+  {id:'p2',name:'Kebba Gaye',phone:'+220 720 2222',email:'kebba.gaye@email.com',bio:'Certified electrician and security systems installer. Experienced with CCTV, alarm systems, and electrical wiring.',location:'Fajara',shop_address:'Fajara Motors Road',years_experience:7,status:'pending',completed_jobs:0,rating:5,rating_count:0,is_available:true,photo_url:'',id_doc_url:'',skills:['Electrical','Security Systems'],work_history:[{title:'CCTV Installation',description:'8-camera system for warehouse'},{title:'House Rewiring',description:'Full electrical rewiring of 4-bedroom house'}]},
 ];
 const DO = [
-  {id:'o1',client_name:'Alieu Bah',client_phone:'+220 711 0000',skill_needed:'Plumbing',description:'Leaking bathroom pipe needs fixing',client_address:'16 Atlantic Road, Kololi',status:'pending',created_at:new Date(Date.now()-3600000).toISOString(),worker_id:null},
-  {id:'o2',client_name:'Hawa Njie',client_phone:'+220 722 0000',skill_needed:'Home Cleaning',description:'Full house deep clean, 3 bedrooms',client_address:'Kairaba Ave, Fajara',status:'accepted',created_at:new Date(Date.now()-86400000).toISOString(),worker_id:'d8'},
-  {id:'o3',client_name:'Yankuba Touray',client_phone:'+220 733 0000',skill_needed:'Electrical',description:'Install 3 ceiling fans',client_address:'Brusubi near school',status:'completed',created_at:new Date(Date.now()-172800000).toISOString(),worker_id:'d3'},
+  {id:'o1',client_name:'Alieu Bah',client_phone:'+220 711 0000',skill_needed:'Plumbing',description:'Leaking bathroom pipe needs fixing',client_address:'16 Atlantic Road, Kololi',status:'pending',created_at:new Date(Date.now()-3600000).toISOString(),worker_id:null,payment_method:'cash',payment_status:'pending',service_fee:500,commission:25,total_amount:525},
+  {id:'o2',client_name:'Hawa Njie',client_phone:'+220 722 0000',skill_needed:'Home Cleaning',description:'Full house deep clean, 3 bedrooms',client_address:'Kairaba Ave, Fajara',status:'accepted',created_at:new Date(Date.now()-86400000).toISOString(),worker_id:'d8',payment_method:'wave',payment_status:'escrow',service_fee:350,commission:18,total_amount:368,payment_reference:'WV-DEMO001'},
+  {id:'o3',client_name:'Yankuba Touray',client_phone:'+220 733 0000',skill_needed:'Electrical',description:'Install 3 ceiling fans',client_address:'Brusubi near school',status:'completed',created_at:new Date(Date.now()-172800000).toISOString(),worker_id:'d3',payment_method:'bank',payment_status:'released',service_fee:600,commission:30,total_amount:630,payment_reference:'BK-DEMO002',completed_at:new Date(Date.now()-86400000).toISOString()},
 ];
 
 /* ══ STATE ══ */
@@ -1318,7 +1321,7 @@ async function clientLogin(){
 function clientOut(){clientUser=null;document.getElementById('cl-auth').style.display='block';document.getElementById('cl-dash').style.display='none';}
 
 function clTab(t,el){
-  document.querySelectorAll('.pt').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  document.querySelectorAll('#cl-ptabs .pt').forEach(b=>b.classList.remove('on'));el.classList.add('on');
   document.getElementById('cl-order-tab').style.display=t==='order'?'block':'none';
   document.getElementById('cl-track-tab').style.display=t==='track'?'block':'none';
   if(t==='track')loadClientOrders();
@@ -1350,7 +1353,7 @@ async function loadClientOrders(){
       orders=data||[];
     }else{
       await wait(250);
-      orders=DO.slice(0,2).map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));
+      orders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));
     }
   }catch(e){orders=[];}
   document.getElementById('cl-cnt').textContent=orders.length;
@@ -1445,7 +1448,7 @@ async function toggleAvail(){
 }
 
 function wpTab(t,el){
-  curWpTab=t;document.querySelectorAll('.pt').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  curWpTab=t;document.querySelectorAll('#wp-ptabs .pt').forEach(b=>b.classList.remove('on'));el.classList.add('on');
   if(t==='earnings'){renderWorkerEarnings();return;}
   loadWpOrders();
 }
@@ -1695,11 +1698,11 @@ async function loadAdmin(){
       adminW=(wd||[]).map(w=>({...w,skills:(w.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean),work_history:w.work_history||[]}));
       const {data:od}=await SB.from('orders').select('*,workers(name,phone),users(name,phone)').order('created_at',{ascending:false});
       allOrders=od||[];
-    }else{await wait(200);adminW=[...DW];allOrders=[...DO];}
-  }catch(e){adminW=[...DW];allOrders=[...DO];}
+    }else{await wait(200);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
+  }catch(e){adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
   adminW.forEach(w=>{WC[w.id]=w;});
   document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
-  document.getElementById('ocnt').textContent=allOrders.filter(o=>o.status==='pending').length;
+  document.getElementById('ocnt').textContent=allOrders.filter(o=>!['completed','cancelled'].includes(o.status)).length;
   renderAdmin();
 }
 
@@ -1722,27 +1725,41 @@ function renderAdmin(){
 function renderAWorkers(box){
   const list=adminW.filter(w=>w.status===curAdminTab);
   if(!list.length){box.innerHTML=`<div class="empty"><div class="empi">✅</div><h3>All Clear</h3><p>No ${curAdminTab} workers.</p></div>`;return;}
-  box.innerHTML=list.map(w=>`
-    <div class="acard">
-      <div class="aav">${w.photo_url?`<img src="${x(w.photo_url)}" onerror="this.style.display='none'">`:''} ${initials(w.name)}</div>
-      <div class="ainfo">
-        <div class="anm">${x(w.name)}</div>
-        <div class="amet">
-          <span>📞 ${x(w.phone)}</span><span>📍 ${x(w.location||'N/A')}</span>
-          <span>🛠 ${(w.skills||[]).map(x).join(', ')||'None'}</span>
-          <span>${w.years_experience||0}yrs</span>
-          ${w.id_doc_url?`<a href="${x(w.id_doc_url)}" target="_blank" style="color:var(--ok)">🪪 View ID</a>`:'<span style="color:var(--er)">⚠ No ID</span>'}
-          ${w.photo_url?`<a href="${x(w.photo_url)}" target="_blank" style="color:var(--ok)">📷 View Photo</a>`:''}
-          <span class="sta sta-${w.status}">${w.status}</span>
+  box.innerHTML=list.map(w=>{
+    const wh=(w.work_history||[]);
+    const hasCerts=w.cert_urls&&w.cert_urls.length||w.cert_count>0;
+    return `
+    <div class="acard" style="flex-direction:column;align-items:stretch;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="aav">${w.photo_url?`<img src="${x(w.photo_url)}" onerror="this.style.display='none'">`:''} ${initials(w.name)}</div>
+        <div class="ainfo">
+          <div class="anm">${x(w.name)}</div>
+          <div class="amet">
+            <span>📞 ${x(w.phone)}</span><span>📍 ${x(w.location||'N/A')}</span>
+            <span>${w.years_experience||0}yrs</span>
+            <span class="sta sta-${w.status}">${w.status}</span>
+          </div>
         </div>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;color:var(--td)">
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Skills</strong><br>${(w.skills||[]).map(s=>`<span class="tag" style="margin:2px 2px 0 0">${x(s)}</span>`).join('')||'<span style="color:var(--er)">None</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Email</strong><br>${x(w.email)||'<span style="color:var(--mt)">Not provided</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Shop / Work Address</strong><br>${x(w.shop_address)||'<span style="color:var(--mt)">Not provided</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Experience</strong><br>${w.years_experience||0} years · ${w.completed_jobs||0} jobs done</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">ID Document</strong><br>${w.id_doc_url?`<a href="${x(w.id_doc_url)}" target="_blank" style="color:var(--ok)">✅ View ID</a>`:'<span style="color:var(--er)">⚠ No ID uploaded</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Photo</strong><br>${w.photo_url?`<a href="${x(w.photo_url)}" target="_blank" style="color:var(--ok)">✅ View Photo</a>`:'<span style="color:var(--er)">⚠ No photo</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Certifications</strong><br>${hasCerts?'✅ '+hasCerts+' on file':'<span style="color:var(--mt)">None uploaded</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Rating</strong><br>★ ${parseFloat(w.rating||5).toFixed(1)} (${w.rating_count||0} reviews)</div>
+      </div>
+      ${w.bio?`<div style="font-size:12px;color:var(--td);line-height:1.6;padding:8px 10px;background:var(--sur);border:1px solid var(--b);border-radius:7px"><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Bio</strong><br>${x(w.bio)}</div>`:''}
+      ${wh.length?`<div style="font-size:11px;color:var(--td)"><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Work History</strong><br>${wh.map(h=>`<span style="display:inline-block;background:var(--sur);border:1px solid var(--b);border-radius:6px;padding:4px 8px;margin:3px 3px 0 0;font-size:10px">🔨 ${x(h.title)}${h.description?' — '+x(h.description):''}</span>`).join('')}</div>`:''}
       <div class="aacts">
-        <button class="aview" onclick="openProfile('${w.id}')">View</button>
+        <button class="aview" onclick="openProfile('${w.id}')">Full Profile</button>
         ${w.status!=='approved'?`<button class="aappr" onclick="setStatus('${w.id}','approved')">✓ Approve</button>`:''}
         ${w.status!=='rejected'?`<button class="arej" onclick="setStatus('${w.id}','rejected')">✕ Reject</button>`:''}
         ${w.status==='rejected'?`<button class="aappr" onclick="setStatus('${w.id}','approved')">↩ Restore</button>`:''}
       </div>
-    </div>`).join('');
+    </div>`;}).join('');
 }
 
 function renderAOrders(box){
@@ -1753,10 +1770,14 @@ function renderAOrders(box){
     if(o.status==='pending') acts.push(`<button class="asm ab" onclick="curAdminTab='assign';renderAdmin()">Assign Worker</button>`);
     if(!['completed','cancelled'].includes(o.status)) acts.push(`<button class="asm ag" onclick="aSetOrder('${o.id}','completed')">✓ Complete</button>`);
     if(!['cancelled'].includes(o.status)) acts.push(`<button class="asm ar" onclick="aSetOrder('${o.id}','cancelled')">Cancel</button>`);
+    const payMethod=o.payment_method||'cash';
+    const payStatus=o.payment_status||'pending';
     return `<div class="orow">
-      <div class="ort"><div class="ors">${x(o.skill_needed)}</div><span class="sta sta-${o.status}">${o.status.replace('_',' ')}</span></div>
-      <div class="orm"><span>👤 ${x(o.client_name)}</span><span>📞 ${x(o.client_phone)}</span><span>📍 ${x(o.client_address)}</span><span>📅 ${fd(o.created_at)}</span>${wk?`<span>👷 ${x(wk.name||wk)}</span>`:'<span style="color:var(--am)">⏳ No worker</span>'}</div>
+      <div class="ort"><div class="ors">${x(o.skill_needed)}</div><span class="sta sta-${o.status}">${o.status.replace('_',' ')}</span>${payMethod?`<span class="pay-status-badge pay-st-${payStatus}" style="margin-left:4px">${payMethod==='wave'?'📱':payMethod==='bank'?'🏦':'💵'} ${payStatus}</span>`:''}</div>
+      <div class="orm"><span>👤 ${x(o.client_name)}</span><span>📞 ${x(o.client_phone)}</span><span>📍 ${x(o.client_address)}</span><span>📅 ${fd(o.created_at)}</span>${wk?`<span>👷 ${x(wk.name||wk)}</span>`:'<span style="color:var(--am)">⏳ No worker assigned</span>'}</div>
       ${o.description?`<div style="font-size:12px;color:var(--td);margin-bottom:7px">${x(o.description)}</div>`:''}
+      ${o.service_fee?`<div style="font-size:11px;color:var(--am);margin-bottom:7px">💰 Service: D${Number(o.service_fee).toLocaleString()} · Commission: D${Number(o.commission||0).toLocaleString()} · Total: D${Number(o.total_amount||Number(o.service_fee)+Number(o.commission||0)).toLocaleString()}${o.payment_reference?' · Ref: '+x(o.payment_reference):''}</div>`:''}
+      ${wk&&wk.phone?`<div class="wk-detail">👷 <strong>${x(wk.name)}</strong> · <a href="tel:${x(wk.phone)}">📞 ${x(wk.phone)}</a>${wk.location?' · 📍 '+x(wk.location):''}${wk.shop_address?' · Shop: '+x(wk.shop_address):''}</div>`:''}
       ${acts.length?`<div class="ora">${acts.join('')}</div>`:''}
     </div>`;
   }).join('');
@@ -2015,6 +2036,8 @@ async function confirmPayment() {
       orderId = 'o' + Date.now();
       orderPayload.id = orderId;
       orderPayload.created_at = new Date().toISOString();
+      // Map worker info for demo mode
+      if(pp.workerId) orderPayload.workers = DW.find(w=>w.id===pp.workerId) || null;
       DO.unshift(orderPayload);
     }
 
@@ -2061,7 +2084,7 @@ async function confirmPayment() {
     if (adminUser) loadAdmin();
 
     // Switch to track tab if in client portal
-    const trackTab = document.querySelectorAll('.pt')[1];
+    const trackTab = document.querySelector('#cl-ptabs .pt:nth-child(2)');
     if (trackTab && clientUser) clTab('track', trackTab);
 
   } catch (e) {
@@ -2085,8 +2108,7 @@ function renderWorkerEarnings() {
     o.worker_id === workerUser.id && ['assigned', 'accepted', 'worker_arrived'].includes(o.status)
   );
   const pendingPayout = activeOrders.reduce((sum, o) => sum + (Number(o.service_fee) || 0) - (Number(o.commission) || 0), 0);
-
-  workerEarnings = { balance: totalEarned - workerEarnings.pending_payout, total_earned: totalEarned, pending_payout: pendingPayout, transactions: [] };
+  const availableBalance = totalEarned - workerEarnings.pending_payout;
 
   // Build transaction history
   (DEMO ? DO : allOrders).filter(o => o.worker_id === workerUser.id && (o.status === 'completed' || o.payment_status)).forEach(o => {
@@ -2186,11 +2208,14 @@ async function renderPayments(box) {
       payments = data || [];
     } else {
       // Build demo payments from orders
-      payments = (DO || []).map(o => ({
+      payments = (DO || []).map(o => {
+        const wk = o.worker_id ? DW.find(w=>w.id===o.worker_id) : null;
+        return {
         id: 'pay-' + o.id,
         order_id: o.id,
         client_name: o.client_name,
         worker_id: o.worker_id,
+        worker_name: wk ? wk.name : null,
         amount: o.total_amount || (o.service_fee || 500) + (o.commission || 25),
         service_fee: o.service_fee || 500,
         commission: o.commission || 25,
@@ -2200,7 +2225,7 @@ async function renderPayments(box) {
         reference: o.payment_reference || 'GSH-DEMO',
         created_at: o.created_at,
         type: 'payment',
-      }));
+      };});
     }
   } catch (e) { payments = []; }
 
@@ -2244,7 +2269,7 @@ async function renderPayments(box) {
             <span style="font-size:10px;color:var(--mt);margin-left:4px">${p.method === 'wave' ? '📱' : p.method === 'bank' ? '🏦' : '💵'} ${p.method || 'cash'}</span>
           </div>
           <div class="orm">
-            <span>Client: ${x(p.client_name || 'N/A')}</span>
+            <span>Client: ${x(p.client_name || 'N/A')}</span>${p.worker_name?`<span>Worker: ${x(p.worker_name)}</span>`:''}
             <span>Ref: ${x(p.reference || 'N/A')}</span>
             <span>${fd(p.created_at)}</span>
           </div>
@@ -2394,12 +2419,15 @@ async function loginWorkerModal(){
       if(!data) { if(err) err.style.display='block'; return; }
       workerUser = {...data, skills:(data.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean)};
     } else {
-      workerUser = DW.find(w => w.phone === ph) || DW[0];
+      await wait(280);
+      workerUser = DW.find(w => w.phone === ph && w.status === 'approved');
+      if (!workerUser) { if(err) err.style.display='block'; return; }
     }
-    closeLogin();
-    nav('wportal');
-    updAvail();
-    loadWpOrders();
+    WC[workerUser.id]=workerUser;
+    document.getElementById('wp-hi').textContent=workerUser.name;
+    document.getElementById('wp-auth').style.display='none';
+    document.getElementById('wp-dash').style.display='block';
+    updAvail();loadWpOrders();
     toast('Welcome back, ' + workerUser.name, 'ok');
   } catch(e) {
     if(err) err.style.display='block';
