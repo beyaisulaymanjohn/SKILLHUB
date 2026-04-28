@@ -736,6 +736,11 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
         <div class="fg"><label class="fl">Email</label><input class="fi" id="re" type="email" placeholder="you@email.com"></div>
         <div class="fg"><label class="fl">Area / Location *</label><input class="fi" id="rl" placeholder="e.g. Serrekunda"></div>
       </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">4-Digit PIN *</label><input class="fi" id="rpin" type="password" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" placeholder="Create 4-digit PIN" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)"></div>
+        <div class="fg"><label class="fl">Confirm PIN *</label><input class="fi" id="rpin2" type="password" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" placeholder="Re-enter your PIN" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)"></div>
+      </div>
+      <div id="pin-match-err" style="display:none;color:var(--er);font-size:12px;margin-bottom:8px">⚠ PINs do not match</div>
       <div class="fg"><label class="fl">Shop / Work Address</label><input class="fi" id="rsa" placeholder="e.g. Mosque Road, Serrekunda (optional)"></div>
       <div class="fg" style="max-width:190px"><label class="fl">Years of Experience *</label><input class="fi" id="rx" type="number" min="0" max="60" placeholder="e.g. 5"></div>
       <div class="brow"><button class="btn bp" onclick="goStep(2)">Next: Skills →</button></div>
@@ -976,9 +981,9 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       
       <div id="lf-worker">
         <h3 onclick="secretAdmin()" style="cursor:default">WORKER<br><em style="font-style:normal;color:var(--am)">LOGIN</em></h3>
-        <div class="lsub">Login with your phone number and password.</div>
+        <div class="lsub">Login with your phone number and PIN.</div>
         <div class="fg"><label class="fl">Phone Number</label><input class="fi" id="wp-phone-modal" type="tel" placeholder="+220 7XX XXXX"></div>
-        <div class="fg"><label class="fl">Password</label><input class="fi" id="wp-pw-modal" type="password" placeholder="Your password"></div>
+        <div class="fg"><label class="fl">4-Digit PIN</label><input class="fi" id="wp-pw-modal" type="password" maxlength="4" inputmode="numeric" placeholder="Your 4-digit PIN" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)"></div>
         <div class="brow"><button class="btn bg" onclick="closeLogin()">Cancel</button><button class="btn bp" onclick="loginWorkerModal()">Login →</button></div>
       </div>
 
@@ -1598,7 +1603,13 @@ async function uploadFile(file,bucket,path){
 /* ══ REGISTRATION ══ */
 function goStep(n){
   if(n>curStep){
-    if(curStep===1&&(!g('rn')||!g('rp')||!g('rl')||!g('rx'))){toast('Fill in all required fields.','er');return;}
+    if(curStep===1){
+      if(!g('rn')||!g('rp')||!g('rl')||!g('rx')){toast('Fill in all required fields.','er');return;}
+      const pin=g('rpin'), pin2=g('rpin2');
+      if(!pin||pin.length!==4){toast('Enter a 4-digit PIN.','er');return;}
+      if(pin!==pin2){document.getElementById('pin-match-err').style.display='block';toast('PINs do not match.','er');return;}
+      document.getElementById('pin-match-err').style.display='none';
+    }
     if(curStep===2&&pickedSkills.length===0){toast('Select at least one skill.','er');return;}
     if(curStep===3&&!UF.photo&&!UF.id){toast('Upload your photo and ID document.','er');return;}
     if(n===5)buildReview();
@@ -1653,7 +1664,7 @@ async function submitApp(){
   const btn=document.getElementById('sbtn');
   btn.disabled=true;btn.textContent='Submitting…';
   try{
-    const payload={name:g('rn'),phone:g('rp'),email:g('re'),location:g('rl'),shop_address:g('rsa'),years_experience:parseInt(g('rx'))||0,bio,status:'pending',is_available:true};
+    const payload={name:g('rn'),phone:g('rp'),email:g('re'),location:g('rl'),shop_address:g('rsa'),years_experience:parseInt(g('rx'))||0,bio,password:g('rpin'),status:'pending',is_available:true};
     if(!DEMO&&SB){
       const wId=`${payload.name.replace(/\s+/g,'-').toLowerCase()}-${Date.now()}`;
       if(UF.photo) payload.photo_url=await uploadFile(UF.photo,'worker-photos',`${wId}/photo`);
@@ -1684,6 +1695,7 @@ function resetForm(){
   pickedSkills=[];curStep=1;weCount2=0;
   UF={photo:null,id:null,cert:[],port:[]};
   document.querySelectorAll('.fi,.fta').forEach(el=>el.value='');
+  document.getElementById('pin-match-err').style.display='none';
   document.querySelectorAll('.sko').forEach(el=>el.classList.remove('pk'));
   document.getElementById('we-list').innerHTML='';
   ['prev-photo','prev-id','prev-cert','prev-port'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
@@ -2510,17 +2522,18 @@ async function loginWorkerModal(){
   const pw = document.getElementById('wp-pw-modal').value.trim();
   const err = document.getElementById('lerr');
   if(!ph){toast('Enter your phone number.','er');return;}
+  if(pw && pw.length !== 4){toast('PIN must be 4 digits.','er');return;}
   
   try {
     if(!DEMO && SB) {
-      // If password entered, try phone+password first
-      if(pw){
+      // If PIN entered, try phone+PIN (password) match
+      if(pw && pw.length===4){
         const {data, error} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('password', pw).maybeSingle());
         if(!error && data){
           workerUser = mapWorker(data);
         }
       }
-      // Fallback: phone-only login (many workers have no password set)
+      // Fallback: phone-only login (for workers registered before PIN was added)
       if(!workerUser){
         const {data: data2, error: err2} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('status','approved').maybeSingle());
         if(err2) throw err2;
@@ -2529,7 +2542,6 @@ async function loginWorkerModal(){
       }
     } else {
       await wait(280);
-      // Try phone+password match in demo data
       workerUser = DW.find(w => w.phone === ph && w.status === 'approved');
       if (!workerUser) { if(err) err.style.display='block'; return; }
     }
