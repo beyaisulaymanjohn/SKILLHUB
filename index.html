@@ -1759,10 +1759,12 @@ async function loadAdmin(){
     if(!DEMO&&SB){
       const {data:wd}=await queryWorkers(SB.from('workers').order('created_at',{ascending:false}));
       adminW=(wd||[]).map(mapWorker);
-      const {data:od}=await SB.from('orders').select('*,workers(name,phone),users(name,phone)').order('created_at',{ascending:false});
-      allOrders=od||[];
+      try{
+        const {data:od}=await SB.from('orders').select('*,workers(name,phone)').order('created_at',{ascending:false});
+        allOrders=od||[];
+      }catch(oe){console.warn('Orders query failed:',oe.message);allOrders=[];}
     }else{await wait(200);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
-  }catch(e){adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
+  }catch(e){console.warn('loadAdmin error:',e.message);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
   adminW.forEach(w=>{WC[w.id]=w;});
   document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
   document.getElementById('ocnt').textContent=allOrders.filter(o=>!['completed','cancelled'].includes(o.status)).length;
