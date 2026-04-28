@@ -1080,31 +1080,36 @@ let selectedPayMethod = 'wave';
 let workerEarnings = { balance: 0, total_earned: 0, pending_payout: 0, transactions: [] };
 
 /* ══ SUPABASE QUERY HELPER ══ */
-// Try full query with worker_skills/work_history joins first.
-// If those tables don't exist (400 error), fall back to simple workers query.
+// Builds worker queries with proper Supabase JS v2 chaining: .select() FIRST, then filters.
+// In v2, .eq(), .order(), .ilike(), .maybeSingle() etc. only exist AFTER .select().
+// Usage: queryWorkers('workers', { filters:{status:'approved'}, order:'created_at', ascending:false })
+//        queryWorkers('workers', { filters:{phone:ph}, maybeSingle:true })
 let _fullJoinWorks = null; // cache result so we don't retry on every call
-async function queryWorkers(sbQuery){
+async function queryWorkers(table, opts={}){
   if(!SB) return {data:null,error:'No Supabase'};
-  // Try full join query
-  try{
-    const result = await sbQuery.select('*,worker_skills(category_id),work_history(*)');
-    if(!result.error){
-      _fullJoinWorks = true;
-      return result;
-    }
-    // 400 likely means tables don't exist — fall back
-    console.warn('Full join query failed, trying simple query:', result.error.message);
-  }catch(e){
-    console.warn('Full join query threw, trying simple query:', e.message);
+  // Internal builder: always calls .select() first, then chains filters
+  function build(sel){
+    let q=SB.from(table).select(sel);
+    if(opts.filters){for(const[k,v]of Object.entries(opts.filters))q=q.eq(k,v);}
+    if(opts.ilike){for(const[k,v]of Object.entries(opts.ilike))q=q.ilike(k,v);}
+    if(opts.in_)q=q.in(opts.in_.col,opts.in_.vals);
+    if(opts.order)q=q.order(opts.order,{ascending:opts.ascending!==false});
+    if(opts.limit)q=q.limit(opts.limit);
+    if(opts.maybeSingle)q=q.maybeSingle();
+    if(opts.single)q=q.single();
+    return q;
   }
-  // Fallback: simple workers query without joins
+  // Try full join query with worker_skills + work_history
   try{
-    const result = await sbQuery.select('*');
-    _fullJoinWorks = false;
-    return result;
-  }catch(e2){
-    return {data:null,error:e2.message};
-  }
+    const r=await build('*,worker_skills(category_id),work_history(*)');
+    if(!r.error){_fullJoinWorks=true;return r;}
+    console.warn('Full join failed, trying simple:',r.error.message);
+  }catch(e){console.warn('Full join threw:',e.message);}
+  // Fallback: simple query without joins
+  try{
+    const r=await build('*');
+    _fullJoinWorks=false;return r;
+  }catch(e2){return{data:null,error:e2.message};}
 }
 function mapWorker(w){
   return {
@@ -1210,9 +1215,9 @@ async function fetchWorkers(search=''){
   box.innerHTML='<div class="sp"><div class="spin"></div></div>';
   try{
     if(SB){
-      let q=SB.from('workers').eq('status','approved');
-      if(search) q=q.ilike('name','%'+search+'%');
-      const {data,error}=await queryWorkers(q);
+      const opts={filters:{status:'approved'}};
+      if(search)opts.ilike={name:'%'+search+'%'};
+      const {data,error}=await queryWorkers('workers',opts);
       if(error) throw error;
       workers=(data||[]).map(mapWorker);
     } else {
@@ -1466,7 +1471,7 @@ async function workerLogin(){
   const ph=g('wp-phone');if(!ph){toast('Enter your registered phone.','er');return;}
   try{
     if(SB){
-      const {data,error}=await queryWorkers(SB.from('workers').eq('phone',ph).eq('status','approved').maybeSingle());
+      const {data,error}=await queryWorkers('workers',{filters:{phone:ph,status:'approved'},maybeSingle:true});
       if(error||!data){toast('Not found or not approved yet.','er');return;}
       workerUser=mapWorker(data);
     }else{
@@ -1757,7 +1762,7 @@ async function loadAdmin(){
   try{
     if(SB){
       console.log('Fetching workers from Supabase...');
-      const {data:wd,error:werr}=await queryWorkers(SB.from('workers').order('created_at',{ascending:false}));
+      const {data:wd,error:werr}=await queryWorkers('workers',{order:'created_at',ascending:false});
       console.log('Workers query result:', wd?.length, 'workers, error:', werr?.message);
       adminW=(wd||[]).map(mapWorker);
       console.log('adminW populated:', adminW.length, 'workers, pending:', adminW.filter(w=>w.status==='pending').length);
@@ -2552,14 +2557,14 @@ async function loginWorkerModal(){
     if(SB) {
       // If PIN entered, try phone+PIN (password) match
       if(pw && pw.length===4){
-        const {data, error} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('password', pw).maybeSingle());
+        const {data, error} = await queryWorkers('workers',{filters:{phone:ph,password:pw},maybeSingle:true});
         if(!error && data){
           workerUser = mapWorker(data);
         }
       }
       // Fallback: phone-only login (for workers registered before PIN was added)
       if(!workerUser){
-        const {data: data2, error: err2} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('status','approved').maybeSingle());
+        const {data: data2, error: err2} = await queryWorkers('workers',{filters:{phone:ph,status:'approved'},maybeSingle:true});
         if(err2) throw err2;
         if(!data2) { if(err) err.style.display='block'; return; }
         workerUser = mapWorker(data2);
