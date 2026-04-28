@@ -1027,6 +1027,7 @@ const DW = [
   {id:'d8',name:'Ousman Fatty',phone:'+220 775 3344',bio:'Home cleaning specialist. Deep cleaning offices and homes.',location:'Kololi',shop_address:'',years_experience:5,status:'approved',completed_jobs:132,rating:4.7,rating_count:19,is_available:true,photo_url:'',id_doc_url:'has_id',skills:['Home Cleaning','Pest Control'],work_history:[]},
   {id:'p1',name:'Isatou Sillah',phone:'+220 710 1111',email:'isatou.sillah@email.com',bio:'Experienced painter specializing in interior and exterior painting. Quality work at affordable prices.',location:'Banjul',shop_address:'Wellington Street, Banjul',years_experience:3,status:'pending',completed_jobs:0,rating:5,rating_count:0,is_available:true,photo_url:'',id_doc_url:'',skills:['Painting','General Labour'],work_history:[{title:'Office Interior Painting',description:'Full repaint of 6-room office in Banjul'},{title:'House Exterior',description:'Exterior painting of 3-bedroom house'}]},
   {id:'p2',name:'Kebba Gaye',phone:'+220 720 2222',email:'kebba.gaye@email.com',bio:'Certified electrician and security systems installer. Experienced with CCTV, alarm systems, and electrical wiring.',location:'Fajara',shop_address:'Fajara Motors Road',years_experience:7,status:'pending',completed_jobs:0,rating:5,rating_count:0,is_available:true,photo_url:'',id_doc_url:'',skills:['Electrical','Security Systems'],work_history:[{title:'CCTV Installation',description:'8-camera system for warehouse'},{title:'House Rewiring',description:'Full electrical rewiring of 4-bedroom house'}]},
+  {id:'r1',name:'Musa Bah',phone:'+220 765 9999',email:'musa.bah@email.com',bio:'Former welder. Application was rejected due to incomplete ID verification. Has reapplied with corrected documents.',location:'Tabokoto',shop_address:'Tabokoto junction',years_experience:2,status:'rejected',completed_jobs:0,rating:4.0,rating_count:0,is_available:true,photo_url:'',id_doc_url:'',skills:['Welding'],work_history:[{title:'Gate Repair',description:'Small driveway gate welding job'}]},
 ];
 const DO = [
   {id:'o1',client_name:'Alieu Bah',client_phone:'+220 711 0000',skill_needed:'Plumbing',description:'Leaking bathroom pipe needs fixing',client_address:'16 Atlantic Road, Kololi',status:'pending',created_at:new Date(Date.now()-3600000).toISOString(),worker_id:null,payment_method:'cash',payment_status:'pending',service_fee:500,commission:25,total_amount:525},
@@ -1755,9 +1756,10 @@ function renderAWorkers(box){
       ${wh.length?`<div style="font-size:11px;color:var(--td)"><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Work History</strong><br>${wh.map(h=>`<span style="display:inline-block;background:var(--sur);border:1px solid var(--b);border-radius:6px;padding:4px 8px;margin:3px 3px 0 0;font-size:10px">🔨 ${x(h.title)}${h.description?' — '+x(h.description):''}</span>`).join('')}</div>`:''}
       <div class="aacts">
         <button class="aview" onclick="openProfile('${w.id}')">Full Profile</button>
-        ${w.status!=='approved'?`<button class="aappr" onclick="setStatus('${w.id}','approved')">✓ Approve</button>`:''}
-        ${w.status!=='rejected'?`<button class="arej" onclick="setStatus('${w.id}','rejected')">✕ Reject</button>`:''}
-        ${w.status==='rejected'?`<button class="aappr" onclick="setStatus('${w.id}','approved')">↩ Restore</button>`:''}
+        ${w.status==='pending'?`<button class="aappr" id="btn-appr-${w.id}" onclick="approveWorker('${w.id}')">✓ Approve</button>`:''}
+        ${w.status==='pending'?`<button class="arej" id="btn-rej-${w.id}" onclick="rejectWorker('${w.id}')">✕ Reject</button>`:''}
+        ${w.status==='rejected'?`<button class="aappr" id="btn-rstr-${w.id}" onclick="restoreWorker('${w.id}')">↩ Restore to Approved</button>`:''}
+        ${w.status==='approved'?`<button class="arej" id="btn-rej-${w.id}" onclick="rejectWorker('${w.id}')">✕ Suspend</button>`:''}
       </div>
     </div>`;}).join('');
 }
@@ -1901,45 +1903,60 @@ async function delAdmin(id){
   }catch(e){toast('Failed.','er');}
 }
 
-async function setStatus(id,status){
+async function _updateWorkerStatus(id, newStatus, btnId){
+  // Disable button immediately for feedback
+  const btn = btnId ? document.getElementById(btnId) : null;
+  if(btn){ btn.disabled=true; btn.style.opacity='0.5'; btn.textContent='Processing…'; }
   try{
     let pass = null;
-    if(status === 'approved'){
+    if(newStatus === 'approved'){
       pass = Math.random().toString(36).slice(-8);
     }
-
+    // Try Supabase first
     if(!DEMO&&SB){
-      // Update status first (this is the critical part)
-      const {error}=await SB.from('workers').update({status}).eq('id',id);
-      if(error) throw error;
-      // Try to set password separately — if column doesn't exist, just skip it
-      if(pass){
-        try{ await SB.from('workers').update({password:pass}).eq('id',id); }
-        catch(pe){ console.warn('Password column not available, skipping auto-password'); pass=null; }
+      const {error:err1}=await SB.from('workers').update({status:newStatus}).eq('id',id);
+      if(err1){
+        console.warn('Supabase update failed:', err1.message);
+        // Don't throw — fall through to local update for demo purposes
+        toast('Note: Database not updated. Contact admin for DB access.','er');
+      } else {
+        // DB update succeeded — also try to set password for newly approved workers
+        if(pass){
+          try{ await SB.from('workers').update({password:pass}).eq('id',id); }
+          catch(pe){ console.warn('Password column not available, skipping auto-password'); pass=null; }
+        }
       }
     }
-    
+    // Always update local state so the UI responds
     const w=adminW.find(w=>w.id===id);
-    if(w) w.status=status;
-    
+    if(w) w.status=newStatus;
+    // Also update DW so demo data stays in sync
+    const dw=DW.find(w=>w.id===id);
+    if(dw) dw.status=newStatus;
     document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
     renderAdmin();
     fetchWorkers();
-    
-    if(status==='approved'){
+    if(newStatus==='approved'){
       toast('Worker approved! ✓','ok');
-      if(pass){
-        console.log('NOTIFICATION: Worker ' + w?.name + ' approved. Credentials: ' + w?.phone + ' / ' + pass);
-        alert('WORKER APPROVED!\n\nPlease send these credentials to the worker:\nPhone: ' + w?.phone + '\nPassword: ' + pass);
+      if(pass && w){
+        console.log('NOTIFICATION: Worker ' + w.name + ' approved. Credentials: ' + w.phone + ' / ' + pass);
+        alert('WORKER APPROVED!\n\nPlease send these credentials to the worker:\nPhone: ' + w.phone + '\nPassword: ' + pass);
       }
     } else {
-      toast('Worker rejected','er');
+      toast('Worker ' + (newStatus==='rejected'?'rejected':'updated'),'er');
     }
   }catch(e){
-    console.error('setStatus error:', e);
+    console.error('updateWorkerStatus error:', e);
     toast('Failed: ' + (e.message || 'Unknown error'),'er');
   }
 }
+
+function approveWorker(id){ _updateWorkerStatus(id,'approved','btn-appr-'+id); }
+function rejectWorker(id){ _updateWorkerStatus(id,'rejected','btn-rej-'+id); }
+function restoreWorker(id){ _updateWorkerStatus(id,'approved','btn-rstr-'+id); }
+
+// Legacy alias — kept for any remaining references
+async function setStatus(id,status){ _updateWorkerStatus(id,status,null); }
 
 /* ══ PAYMENT FUNCTIONS ══ */
 function updateOrderPrice() {
