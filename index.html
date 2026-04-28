@@ -739,11 +739,6 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
         <div class="fg"><label class="fl">Email</label><input class="fi" id="re" type="email" placeholder="you@email.com"></div>
         <div class="fg"><label class="fl">Area / Location *</label><input class="fi" id="rl" placeholder="e.g. Serrekunda"></div>
       </div>
-      <div class="frow">
-        <div class="fg"><label class="fl">4-Digit PIN *</label><input class="fi" id="rpin" type="password" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" placeholder="Create 4-digit PIN" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)"></div>
-        <div class="fg"><label class="fl">Confirm PIN *</label><input class="fi" id="rpin2" type="password" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" placeholder="Re-enter your PIN" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)"></div>
-      </div>
-      <div id="pin-match-err" style="display:none;color:var(--er);font-size:12px;margin-bottom:8px">⚠ PINs do not match</div>
       <div class="fg"><label class="fl">Shop / Work Address</label><input class="fi" id="rsa" placeholder="e.g. Mosque Road, Serrekunda (optional)"></div>
       <div class="fg" style="max-width:190px"><label class="fl">Years of Experience *</label><input class="fi" id="rx" type="number" min="0" max="60" placeholder="e.g. 5"></div>
       <div class="brow"><button class="btn bp" onclick="goStep(2)">Next: Skills →</button></div>
@@ -809,7 +804,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
   <div class="awrap">
     <div class="atop">
       <div><h2>ADMIN<br><em style="font-style:normal;color:var(--am)">DASHBOARD</em></h2><div style="font-size:12px;color:var(--td);margin-top:5px">GamSkillHub Agency Panel</div></div>
-      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="adm-who" style="font-size:11px;color:var(--td)"></span><span id="mode-ind" style="font-size:11px;font-weight:700">🟡 DEMO</span><button class="nb" onclick="loadAdmin();toast('Refreshed ✓','ok')" title="Refresh data">🔄 Refresh</button><button class="nb" onclick="adminOut()">Log Out</button></div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="adm-who" style="font-size:11px;color:var(--td)"></span><span id="mode-ind" style="font-size:11px;font-weight:700">🟡 DEMO</span><button class="nb" onclick="loadAdmin();toast('Refreshed','ok')" title="Refresh">🔄</button><button class="nb" onclick="adminOut()">Log Out</button></div>
     </div>
     <div class="tabbar">
       <button class="tb on" onclick="aTab('pending',this)">Pending <span class="cbg" id="pcnt">0</span></button>
@@ -984,9 +979,9 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
       
       <div id="lf-worker">
         <h3 onclick="secretAdmin()" style="cursor:default">WORKER<br><em style="font-style:normal;color:var(--am)">LOGIN</em></h3>
-        <div class="lsub">Login with your phone number and PIN.</div>
-        <div class="fg"><label class="fl">Phone Number</label><input class="fi" id="wp-phone-modal" type="tel" placeholder="+220 7XX XXXX"></div>
-        <div class="fg"><label class="fl">4-Digit PIN</label><input class="fi" id="wp-pw-modal" type="password" maxlength="4" inputmode="numeric" placeholder="Your 4-digit PIN" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)"></div>
+        <div class="lsub">Login with your phone number. Password is optional.</div>
+        <div class="fg"><label class="fl">Phone Number *</label><input class="fi" id="wp-phone-modal" type="tel" placeholder="+220 7XX XXXX"></div>
+        <div class="fg"><label class="fl">PIN / Password (optional)</label><input class="fi" id="wp-pw-modal" type="password" placeholder="Leave blank if none set"></div>
         <div class="brow"><button class="btn bg" onclick="closeLogin()">Cancel</button><button class="btn bp" onclick="loginWorkerModal()">Login →</button></div>
       </div>
 
@@ -1082,12 +1077,9 @@ let workerEarnings = { balance: 0, total_earned: 0, pending_payout: 0, transacti
 /* ══ SUPABASE QUERY HELPER ══ */
 // Builds worker queries with proper Supabase JS v2 chaining: .select() FIRST, then filters.
 // In v2, .eq(), .order(), .ilike(), .maybeSingle() etc. only exist AFTER .select().
-// Usage: queryWorkers('workers', { filters:{status:'approved'}, order:'created_at', ascending:false })
-//        queryWorkers('workers', { filters:{phone:ph}, maybeSingle:true })
-let _fullJoinWorks = null; // cache result so we don't retry on every call
+let _fullJoinWorks = null;
 async function queryWorkers(table, opts={}){
   if(!SB) return {data:null,error:'No Supabase'};
-  // Internal builder: always calls .select() first, then chains filters
   function build(sel){
     let q=SB.from(table).select(sel);
     if(opts.filters){for(const[k,v]of Object.entries(opts.filters))q=q.eq(k,v);}
@@ -1099,13 +1091,11 @@ async function queryWorkers(table, opts={}){
     if(opts.single)q=q.single();
     return q;
   }
-  // Try full join query with worker_skills + work_history
   try{
     const r=await build('*,worker_skills(category_id),work_history(*)');
     if(!r.error){_fullJoinWorks=true;return r;}
     console.warn('Full join failed, trying simple:',r.error.message);
   }catch(e){console.warn('Full join threw:',e.message);}
-  // Fallback: simple query without joins
   try{
     const r=await build('*');
     _fullJoinWorks=false;return r;
@@ -1128,9 +1118,9 @@ async function init() {
       if(window.supabase && window.supabase.createClient){
         SB=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
         DEMO=false;
-        console.log('GamSkillHub: LIVE mode — Supabase connected ✅');
+        console.log('GamSkillHub: LIVE mode — Supabase connected');
       } else {
-        console.error('GamSkillHub: Supabase JS library NOT loaded! Check CDN script.');
+        console.error('GamSkillHub: Supabase JS library NOT loaded!');
         DEMO=true;
       }
     }
@@ -1215,11 +1205,14 @@ async function fetchWorkers(search=''){
   box.innerHTML='<div class="sp"><div class="spin"></div></div>';
   try{
     if(SB){
-      const opts={filters:{status:'approved'}};
-      if(search)opts.ilike={name:'%'+search+'%'};
-      const {data,error}=await queryWorkers('workers',opts);
+      let q=SB.from('workers').select('*,worker_skills(category_id),work_history(*)').eq('status','approved');
+      if(search) q=q.ilike('name','%'+search+'%');
+      const {data,error}=await q;
       if(error) throw error;
-      workers=(data||[]).map(mapWorker);
+      workers=(data||[]).map(w=>({...w,
+        skills:(w.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean),
+        work_history:w.work_history||[]
+      }));
     } else {
       await wait(280);
       workers=DW.filter(w=>w.status==='approved'&&(!search||
@@ -1471,9 +1464,15 @@ async function workerLogin(){
   const ph=g('wp-phone');if(!ph){toast('Enter your registered phone.','er');return;}
   try{
     if(SB){
-      const {data,error}=await queryWorkers('workers',{filters:{phone:ph,status:'approved'},maybeSingle:true});
-      if(error||!data){toast('Not found or not approved yet.','er');return;}
-      workerUser=mapWorker(data);
+      const {data,error}=await queryWorkers('workers',{filters:{phone:ph,status:'approved'},limit:1,order:'created_at',ascending:false});
+      if(error||!data||!data.length){
+        // Check if worker exists but isn't approved
+        const {data:pd}=await queryWorkers('workers',{filters:{phone:ph},limit:1});
+        if(pd&&pd.length) toast('Your account is '+pd[0].status+'. Not approved yet.','er');
+        else toast('Not found.','er');
+        return;
+      }
+      workerUser=mapWorker(data[0]);
     }else{
       await wait(280);
       workerUser=DW.find(w=>w.phone===ph&&w.status==='approved');
@@ -1597,21 +1596,29 @@ async function uploadFile(file,bucket,path){
   if(!SB||!file)return null;
   try{
     const {error}=await SB.storage.from(bucket).upload(path,file,{upsert:true});
-    if(error)throw error;
+    if(error){
+      // If bucket doesn't exist, create it
+      if(error.message && (error.message.includes('bucket') || error.message.includes('not found') || error.statusCode===404)){
+        console.warn('Storage bucket "'+bucket+'" does not exist. Creating...');
+        try{
+          const {error:be}=await SB.storage.createBucket(bucket,{public:true,fileSizeLimit:5242880,allowedMimeTypes:['image/*','application/pdf']});
+          if(be){console.warn('Cannot create bucket (need service_role key):',be.message);return null;}
+          // Retry upload after creating bucket
+          const {error:re}=await SB.storage.from(bucket).upload(path,file,{upsert:true});
+          if(re){console.warn('Upload retry failed:',re.message);return null;}
+          return SB.storage.from(bucket).getPublicUrl(path).data?.publicUrl||null;
+        }catch(bce){console.warn('Bucket creation failed:',bce.message);return null;}
+      }
+      console.warn('Upload fail:',error.message);return null;
+    }
     return SB.storage.from(bucket).getPublicUrl(path).data?.publicUrl||null;
-  }catch(e){console.warn('Upload fail:',e);return null;}
+  }catch(e){console.warn('Upload fail:',e.message);return null;}
 }
 
 /* ══ REGISTRATION ══ */
 function goStep(n){
   if(n>curStep){
-    if(curStep===1){
-      if(!g('rn')||!g('rp')||!g('rl')||!g('rx')){toast('Fill in all required fields.','er');return;}
-      const pin=g('rpin'), pin2=g('rpin2');
-      if(!pin||pin.length!==4){toast('Enter a 4-digit PIN.','er');return;}
-      if(pin!==pin2){document.getElementById('pin-match-err').style.display='block';toast('PINs do not match.','er');return;}
-      document.getElementById('pin-match-err').style.display='none';
-    }
+    if(curStep===1&&(!g('rn')||!g('rp')||!g('rl')||!g('rx'))){toast('Fill in all required fields.','er');return;}
     if(curStep===2&&pickedSkills.length===0){toast('Select at least one skill.','er');return;}
     if(curStep===3&&!UF.photo&&!UF.id){toast('Upload your photo and ID document.','er');return;}
     if(n===5)buildReview();
@@ -1673,17 +1680,13 @@ async function submitApp(){
       if(UF.id) payload.id_doc_url=await uploadFile(UF.id,'worker-docs',`${wId}/id`);
       const {data:wk,error}=await SB.from('workers').insert([payload]).select().single();
       if(error)throw error;
-      try{
-        if(pickedSkills.length){
-          const rows=pickedSkills.map(s=>{const c=skills.find(x=>x.name===s);return c?{worker_id:wk.id,category_id:c.id}:null;}).filter(Boolean);
-          if(rows.length)await SB.from('worker_skills').insert(rows);
-        }
-      }catch(se){console.warn('worker_skills insert failed (table may not exist):',se.message);}
-      try{
-        const wh=getWE();
-        if(wh.length)await SB.from('work_history').insert(wh.map(e=>({...e,worker_id:wk.id})));
-      }catch(he){console.warn('work_history insert failed (table may not exist):',he.message);}
-    }else{toast('Connection error — registration NOT saved. Check your internet and try again.','er');btn.disabled=false;btn.textContent='Submit Application ✓';return;}
+      if(pickedSkills.length){
+        const rows=pickedSkills.map(s=>{const c=skills.find(x=>x.name===s);return c?{worker_id:wk.id,category_id:c.id}:null;}).filter(Boolean);
+        if(rows.length)await SB.from('worker_skills').insert(rows);
+      }
+      const wh=getWE();
+      if(wh.length)await SB.from('work_history').insert(wh.map(e=>({...e,worker_id:wk.id})));
+    }else{toast('Connection error — registration NOT saved.','er');btn.disabled=false;btn.textContent='Submit Application ✓';return;}
     document.getElementById('reg-ok').classList.add('on');
     document.querySelectorAll('.fstep').forEach(s=>s.classList.remove('on'));
     document.querySelectorAll('.snd').forEach(s=>{s.classList.remove('ac');s.classList.add('dn');});
@@ -1697,7 +1700,6 @@ function resetForm(){
   pickedSkills=[];curStep=1;weCount2=0;
   UF={photo:null,id:null,cert:[],port:[]};
   document.querySelectorAll('.fi,.fta').forEach(el=>el.value='');
-  document.getElementById('pin-match-err').style.display='none';
   document.querySelectorAll('.sko').forEach(el=>el.classList.remove('pk'));
   document.getElementById('we-list').innerHTML='';
   ['prev-photo','prev-id','prev-cert','prev-port'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
@@ -1758,44 +1760,33 @@ function adminOut(){adminUser=null;localStorage.removeItem('gsh_admin');nav('hom
 /* ══ ADMIN DASHBOARD ══ */
 async function loadAdmin(){
   adminW=[];allOrders=[];
-  console.log('loadAdmin called — SB:', !!SB, 'DEMO:', DEMO);
+  console.log('loadAdmin — SB:', !!SB, 'DEMO:', DEMO);
   try{
     if(SB){
       console.log('Fetching workers from Supabase...');
       const {data:wd,error:werr}=await queryWorkers('workers',{order:'created_at',ascending:false});
-      console.log('Workers query result:', wd?.length, 'workers, error:', werr?.message);
+      console.log('Workers:', wd?.length, 'error:', werr?.message);
       adminW=(wd||[]).map(mapWorker);
-      console.log('adminW populated:', adminW.length, 'workers, pending:', adminW.filter(w=>w.status==='pending').length);
       try{
         const {data:od}=await SB.from('orders').select('*,workers(name,phone)').order('created_at',{ascending:false});
         allOrders=od||[];
-        console.log('Orders loaded:', allOrders.length);
       }catch(oe){console.warn('Orders query failed:',oe.message);allOrders=[];}
     }else{
-      console.warn('loadAdmin: No Supabase (SB=null) — loading demo data');
+      console.warn('No Supabase — demo data');
       await wait(200);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));
     }
   }catch(e){console.error('loadAdmin error:',e);}
   adminW.forEach(w=>{WC[w.id]=w;});
   document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
   document.getElementById('ocnt').textContent=allOrders.filter(o=>!['completed','cancelled'].includes(o.status)).length;
-  // Update mode indicator
   updateModeIndicator();
   renderAdmin();
 }
 function updateModeIndicator(){
   const el=document.getElementById('mode-ind');
-  if(el){
-    if(SB && !DEMO){
-      el.innerHTML='🟢 LIVE';
-      el.style.color='var(--ok)';
-      el.title='Connected to Supabase — showing real data';
-    }else{
-      el.innerHTML='🟡 DEMO';
-      el.style.color='var(--am)';
-      el.title='Demo mode — showing sample data only';
-    }
-  }
+  if(!el)return;
+  if(SB&&!DEMO){el.innerHTML='🟢 LIVE';el.style.color='var(--ok)';el.title='Connected to Supabase — real data';}
+  else{el.innerHTML='🟡 DEMO';el.style.color='var(--am)';el.title='Demo mode — sample data';}
 }
 
 function aTab(t,el){
@@ -1958,10 +1949,7 @@ async function delSkill(id){
 async function renderAdmins(box){
   let admins=[];
   try{
-    if(SB){
-      try{const {data}=await SB.from('admin_users').select('*').order('created_at');admins=data||[];}
-      catch(se){console.warn('admin_users query failed (no RLS policy?):',se.message);admins=[{id:'a1',name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin',created_at:new Date().toISOString()}];}
-    }
+    if(SB){const {data}=await SB.from('admin_users').select('*').order('created_at');admins=data||[];}
     else admins=[{id:'a1',name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin',created_at:new Date().toISOString()}];
   }catch(e){admins=[];}
   box.innerHTML=`<div class="shtit">ADMIN USERS</div>
@@ -1984,10 +1972,7 @@ async function addAdmin(){
   const nm=g('na-nm'),em=g('na-em'),pw=g('na-pw');
   if(!nm||!em||!pw){toast('All fields required.','er');return;}
   try{
-    if(SB){
-      try{const {error}=await SB.from('admin_users').insert([{name:nm,email:em,password:pw,role:'admin'}]);if(error)throw error;}
-      catch(ie){toast('DB error: admin_users table may lack INSERT policy. Run the SQL fix.','er');return;}
-    }
+    if(SB){const {error}=await SB.from('admin_users').insert([{name:nm,email:em,password:pw,role:'admin'}]);if(error)throw error;}
     toast('"'+nm+'" added as admin ✓','ok');renderAdmins(document.getElementById('adm-content'));
   }catch(e){toast('Failed. Email may exist already.','er');}
 }
@@ -1995,10 +1980,7 @@ async function addAdmin(){
 async function delAdmin(id){
   if(!confirm('Remove this admin user?'))return;
   try{
-    if(SB){
-      try{await SB.from('admin_users').delete().eq('id',id);}
-      catch(de){toast('DB error: admin_users table may lack DELETE policy.','er');return;}
-    }
+    if(SB)await SB.from('admin_users').delete().eq('id',id);
     toast('Removed.','ok');renderAdmins(document.getElementById('adm-content'));
   }catch(e){toast('Failed.','er');}
 }
@@ -2551,23 +2533,33 @@ async function loginWorkerModal(){
   const pw = document.getElementById('wp-pw-modal').value.trim();
   const err = document.getElementById('lerr');
   if(!ph){toast('Enter your phone number.','er');return;}
-  if(pw && pw.length !== 4){toast('PIN must be 4 digits.','er');return;}
   
   try {
     if(SB) {
-      // If PIN entered, try phone+PIN (password) match
-      if(pw && pw.length===4){
-        const {data, error} = await queryWorkers('workers',{filters:{phone:ph,password:pw},maybeSingle:true});
-        if(!error && data){
-          workerUser = mapWorker(data);
+      // If password entered, try phone+password match
+      if(pw){
+        const {data, error} = await queryWorkers('workers',{filters:{phone:ph,password:pw},limit:1,order:'created_at',ascending:false});
+        if(!error && data && data.length){
+          // Find an approved worker first, otherwise use any
+          const approved = data.filter(w=>w.status==='approved');
+          workerUser = mapWorker(approved[0] || data[0]);
         }
       }
-      // Fallback: phone-only login (for workers registered before PIN was added)
+      // Fallback: phone-only login — get approved workers with this phone
       if(!workerUser){
-        const {data: data2, error: err2} = await queryWorkers('workers',{filters:{phone:ph,status:'approved'},maybeSingle:true});
+        const {data: data2, error: err2} = await queryWorkers('workers',{filters:{phone:ph,status:'approved'},limit:1,order:'created_at',ascending:false});
         if(err2) throw err2;
-        if(!data2) { if(err) err.style.display='block'; return; }
-        workerUser = mapWorker(data2);
+        if(!data2 || !data2.length) { 
+          // Try phone-only without status filter (pending workers exist but aren't approved yet)
+          const {data: data3, error: err3} = await queryWorkers('workers',{filters:{phone:ph},limit:1,order:'created_at',ascending:false});
+          if(data3 && data3.length){
+            toast('Your account is ' + data3[0].status + '. Admin has not approved you yet.','er');
+          } else {
+            if(err) err.style.display='block'; 
+          }
+          return; 
+        }
+        workerUser = mapWorker(data2[0]);
       }
     } else {
       await wait(280);
@@ -2579,11 +2571,11 @@ async function loginWorkerModal(){
     document.getElementById('wp-auth').style.display='none';
     document.getElementById('wp-dash').style.display='block';
     updAvail();loadWpOrders();
-    closeLogin();
     toast('Welcome back, ' + workerUser.name, 'ok');
+    closeLogin();
   } catch(e) {
-    console.warn('Worker login error:', e);
     if(err) err.style.display='block';
+    console.error('Worker login error:', e);
   }
 }
 
