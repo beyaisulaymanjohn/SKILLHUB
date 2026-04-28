@@ -1118,21 +1118,10 @@ async function init() {
   try {
     if(CFG.supabaseUrl!=='YOUR_SUPABASE_URL'){
       SB=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
-      // Test if Supabase is actually reachable and has RLS policies
-      try {
-        const {error:testErr} = await SB.from('workers').select('id').limit(1);
-        if(testErr && testErr.message.includes('does not exist')){
-          console.warn('Workers table not found — falling back to DEMO mode');
-          SB=null; DEMO=true;
-        } else {
-          DEMO=false;
-        }
-      } catch(te){
-        console.warn('Supabase unreachable — falling back to DEMO mode');
-        SB=null; DEMO=true;
-      }
+      DEMO=false;
+      console.log('GamSkillHub: Live mode (Supabase connected)');
     }
-  } catch(e){console.warn('Demo mode');}
+  } catch(e){console.warn('Init error:',e);}
   
   // Check for saved session
   const saved = localStorage.getItem('gsh_admin');
@@ -1212,7 +1201,7 @@ async function fetchWorkers(search=''){
   const box=document.getElementById('wbox');
   box.innerHTML='<div class="sp"><div class="spin"></div></div>';
   try{
-    if(!DEMO&&SB){
+    if(SB){
       let q=SB.from('workers').eq('status','approved');
       if(search) q=q.ilike('name','%'+search+'%');
       const {data,error}=await queryWorkers(q);
@@ -1358,7 +1347,7 @@ async function clientLogin(){
   const nm=g('cl-name'),ph=g('cl-phone');
   if(!nm||!ph){toast('Name and phone required.','er');return;}
   try{
-    if(!DEMO&&SB){
+    if(SB){
       let {data:ex}=await SB.from('users').select('*').eq('phone',ph).maybeSingle();
       if(!ex){const {data,error}=await SB.from('users').insert([{name:nm,phone:ph,email:g('cl-email')}]).select().single();if(error)throw error;clientUser=data;}
       else clientUser=ex;
@@ -1437,7 +1426,7 @@ async function updOrder(id,status){
     const u={status};
     if(status==='worker_arrived')u.arrived_at=new Date().toISOString();
     if(status==='completed')u.completed_at=new Date().toISOString();
-    if(!DEMO&&SB){const {error}=await SB.from('orders').update(u).eq('id',id);if(error)throw error;}
+    if(SB){const {error}=await SB.from('orders').update(u).eq('id',id);if(error)throw error;}
     else{const o=DO.find(x=>x.id===id);if(o)Object.assign(o,u);}
     toast('Updated ✓','ok');
     loadClientOrders();
@@ -1457,7 +1446,7 @@ async function submitRating(){
   if(!rateScore){toast('Select a star rating.','er');return;}
   try{
     const p={order_id:rateOId,worker_id:rateWId,user_id:clientUser?.id||null,score:rateScore,comment:g('rate-cm')};
-    if(!DEMO&&SB){const {error}=await SB.from('ratings').insert([p]);if(error)throw error;}
+    if(SB){const {error}=await SB.from('ratings').insert([p]);if(error)throw error;}
     else await wait(280);
     closeMod(null,'rateMod');toast('Rating submitted ✓','ok');
     loadClientOrders();fetchWorkers();
@@ -1468,7 +1457,7 @@ async function submitRating(){
 async function workerLogin(){
   const ph=g('wp-phone');if(!ph){toast('Enter your registered phone.','er');return;}
   try{
-    if(!DEMO&&SB){
+    if(SB){
       const {data,error}=await queryWorkers(SB.from('workers').eq('phone',ph).eq('status','approved').maybeSingle());
       if(error||!data){toast('Not found or not approved yet.','er');return;}
       workerUser=mapWorker(data);
@@ -1493,7 +1482,7 @@ function updAvail(){
 async function toggleAvail(){
   const nv=!(workerUser?.is_available!==false);
   try{
-    if(!DEMO&&SB)await SB.from('workers').update({is_available:nv}).eq('id',workerUser.id);
+    if(SB)await SB.from('workers').update({is_available:nv}).eq('id',workerUser.id);
     workerUser.is_available=nv;updAvail();
     toast(nv?'You are now Available ✓':'Set as Busy','ok');
   }catch(e){toast('Failed.','er');}
@@ -1514,7 +1503,7 @@ async function loadWpOrders(){
   try{
     const smap={new:['pending','assigned'],active:['accepted','worker_arrived'],done:['completed']};
     const stats=smap[curWpTab]||['pending'];
-    if(!DEMO&&SB){
+    if(SB){
       let q=SB.from('orders').select('*').in('status',stats);
       if(curWpTab!=='new')q=q.eq('worker_id',workerUser.id);
       const {data}=await q.order('created_at',{ascending:false});
@@ -1551,7 +1540,7 @@ async function loadWpOrders(){
 async function wAccept(oId){
   try{
     const u={status:'accepted',worker_id:workerUser.id,accepted_at:new Date().toISOString()};
-    if(!DEMO&&SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
+    if(SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
     else{const o=DO.find(x=>x.id===oId);if(o)Object.assign(o,u);}
     toast('Job accepted! ✓','ok');loadWpOrders();
   }catch(e){toast('Failed.','er');}
@@ -1561,7 +1550,7 @@ async function wUpdStatus(oId,status){
   if(status==='worker_arrived')u.arrived_at=new Date().toISOString();
   if(status==='completed')u.completed_at=new Date().toISOString();
   try{
-    if(!DEMO&&SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
+    if(SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
     else{const o=DO.find(x=>x.id===oId);if(o)Object.assign(o,u);}
     toast('Status updated ✓','ok');loadWpOrders();
   }catch(e){toast('Failed.','er');}
@@ -1665,7 +1654,7 @@ async function submitApp(){
   btn.disabled=true;btn.textContent='Submitting…';
   try{
     const payload={name:g('rn'),phone:g('rp'),email:g('re'),location:g('rl'),shop_address:g('rsa'),years_experience:parseInt(g('rx'))||0,bio,password:g('rpin'),status:'pending',is_available:true};
-    if(!DEMO&&SB){
+    if(SB){
       const wId=`${payload.name.replace(/\s+/g,'-').toLowerCase()}-${Date.now()}`;
       if(UF.photo) payload.photo_url=await uploadFile(UF.photo,'worker-photos',`${wId}/photo`);
       if(UF.id) payload.id_doc_url=await uploadFile(UF.id,'worker-docs',`${wId}/id`);
@@ -1681,7 +1670,7 @@ async function submitApp(){
         const wh=getWE();
         if(wh.length)await SB.from('work_history').insert(wh.map(e=>({...e,worker_id:wk.id})));
       }catch(he){console.warn('work_history insert failed (table may not exist):',he.message);}
-    }else await wait(700);
+    }else{console.warn('No Supabase — registration not saved');}
     document.getElementById('reg-ok').classList.add('on');
     document.querySelectorAll('.fstep').forEach(s=>s.classList.remove('on'));
     document.querySelectorAll('.snd').forEach(s=>{s.classList.remove('ac');s.classList.add('dn');});
@@ -1755,16 +1744,20 @@ function adminOut(){adminUser=null;localStorage.removeItem('gsh_admin');nav('hom
 
 /* ══ ADMIN DASHBOARD ══ */
 async function loadAdmin(){
+  adminW=[];allOrders=[];
   try{
-    if(!DEMO&&SB){
+    if(SB){
       const {data:wd}=await queryWorkers(SB.from('workers').order('created_at',{ascending:false}));
       adminW=(wd||[]).map(mapWorker);
       try{
         const {data:od}=await SB.from('orders').select('*,workers(name,phone)').order('created_at',{ascending:false});
         allOrders=od||[];
       }catch(oe){console.warn('Orders query failed:',oe.message);allOrders=[];}
-    }else{await wait(200);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
-  }catch(e){console.warn('loadAdmin error:',e.message);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
+    }else{
+      // True DEMO mode — no Supabase configured at all
+      await wait(200);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));
+    }
+  }catch(e){console.warn('loadAdmin error:',e.message);}
   adminW.forEach(w=>{WC[w.id]=w;});
   document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
   document.getElementById('ocnt').textContent=allOrders.filter(o=>!['completed','cancelled'].includes(o.status)).length;
@@ -1874,7 +1867,7 @@ async function doAssign(oId){
   const wId=sel?.value;if(!wId){toast('Select a worker.','er');return;}
   try{
     const u={worker_id:wId,status:'assigned',assigned_by_admin:true};
-    if(!DEMO&&SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
+    if(SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
     else{const o=allOrders.find(o=>o.id===oId);if(o)Object.assign(o,u);}
     toast('Order assigned ✓','ok');loadAdmin();
   }catch(e){toast('Failed.','er');}
@@ -1883,7 +1876,7 @@ async function doAssign(oId){
 async function aSetOrder(oId,status){
   try{
     const u={status};if(status==='completed')u.completed_at=new Date().toISOString();
-    if(!DEMO&&SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
+    if(SB){const {error}=await SB.from('orders').update(u).eq('id',oId);if(error)throw error;}
     else{const o=allOrders.find(o=>o.id===oId);if(o)Object.assign(o,u);}
     toast('Updated ✓','ok');loadAdmin();
   }catch(e){toast('Failed.','er');}
@@ -1910,7 +1903,7 @@ async function addSkill(){
   if(skills.some(s=>s.name.toLowerCase()===nm.toLowerCase())){toast('Skill already exists.','er');return;}
   try{
     let ns={name:nm,icon,description:desc,is_active:true};
-    if(!DEMO&&SB){const {data,error}=await SB.from('skill_categories').insert([ns]).select().single();if(error)throw error;ns=data;}
+    if(SB){const {data,error}=await SB.from('skill_categories').insert([ns]).select().single();if(error)throw error;ns=data;}
     else ns.id=Date.now();
     skills.push(ns);
     buildPills();buildPicker();fillSkillSelect('ord-skill');
@@ -1921,7 +1914,7 @@ async function addSkill(){
 async function delSkill(id){
   if(!confirm('Remove this skill?'))return;
   try{
-    if(!DEMO&&SB){const {error}=await SB.from('skill_categories').delete().eq('id',id);if(error)throw error;}
+    if(SB){const {error}=await SB.from('skill_categories').delete().eq('id',id);if(error)throw error;}
     skills=skills.filter(s=>s.id!==id);
     buildPills();buildPicker();fillSkillSelect('ord-skill');
     toast('Skill removed.','ok');renderAdmin();
@@ -1931,7 +1924,7 @@ async function delSkill(id){
 async function renderAdmins(box){
   let admins=[];
   try{
-    if(!DEMO&&SB){
+    if(SB){
       try{const {data}=await SB.from('admin_users').select('*').order('created_at');admins=data||[];}
       catch(se){console.warn('admin_users query failed (no RLS policy?):',se.message);admins=[{id:'a1',name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin',created_at:new Date().toISOString()}];}
     }
@@ -1957,7 +1950,7 @@ async function addAdmin(){
   const nm=g('na-nm'),em=g('na-em'),pw=g('na-pw');
   if(!nm||!em||!pw){toast('All fields required.','er');return;}
   try{
-    if(!DEMO&&SB){
+    if(SB){
       try{const {error}=await SB.from('admin_users').insert([{name:nm,email:em,password:pw,role:'admin'}]);if(error)throw error;}
       catch(ie){toast('DB error: admin_users table may lack INSERT policy. Run the SQL fix.','er');return;}
     }
@@ -1968,7 +1961,7 @@ async function addAdmin(){
 async function delAdmin(id){
   if(!confirm('Remove this admin user?'))return;
   try{
-    if(!DEMO&&SB){
+    if(SB){
       try{await SB.from('admin_users').delete().eq('id',id);}
       catch(de){toast('DB error: admin_users table may lack DELETE policy.','er');return;}
     }
@@ -1987,7 +1980,7 @@ async function _updateWorkerStatus(id, newStatus, btnId){
     }
     let dbOk = true; // track whether DB update succeeded
     // Try Supabase first
-    if(!DEMO&&SB){
+    if(SB){
       const {error:err1}=await SB.from('workers').update({status:newStatus}).eq('id',id);
       if(err1){
         console.warn('Supabase update failed:', err1.message);
