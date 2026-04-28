@@ -4,6 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>GamSkillHub — Gambia's Skilled Worker Agency</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
@@ -806,7 +809,7 @@ nav{position:fixed;inset:0 0 auto 0;z-index:900;height:54px;display:flex;align-i
   <div class="awrap">
     <div class="atop">
       <div><h2>ADMIN<br><em style="font-style:normal;color:var(--am)">DASHBOARD</em></h2><div style="font-size:12px;color:var(--td);margin-top:5px">GamSkillHub Agency Panel</div></div>
-      <div style="display:flex;gap:7px;align-items:center"><span id="adm-who" style="font-size:11px;color:var(--td)"></span><button class="nb" onclick="adminOut()">Log Out</button></div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="adm-who" style="font-size:11px;color:var(--td)"></span><span id="mode-ind" style="font-size:11px;font-weight:700">🟡 DEMO</span><button class="nb" onclick="loadAdmin();toast('Refreshed ✓','ok')" title="Refresh data">🔄 Refresh</button><button class="nb" onclick="adminOut()">Log Out</button></div>
     </div>
     <div class="tabbar">
       <button class="tb on" onclick="aTab('pending',this)">Pending <span class="cbg" id="pcnt">0</span></button>
@@ -1041,7 +1044,7 @@ const DO = [
 ];
 
 /* ══ STATE ══ */
-let SB=null, DEMO=true;
+let SB=null, DEMO=false;
 let workers=[], adminW=[], allOrders=[], allPayments=[], skills=[...DEFAULT_SKILLS];
 let curFilter='all', curStep=1, pickedSkills=[], weN=0;
 let curAdminTab='pending', adminUser=null;
@@ -1117,11 +1120,16 @@ function mapWorker(w){
 async function init() {
   try {
     if(CFG.supabaseUrl!=='YOUR_SUPABASE_URL'){
-      SB=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
-      DEMO=false;
-      console.log('GamSkillHub: Live mode (Supabase connected)');
+      if(window.supabase && window.supabase.createClient){
+        SB=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
+        DEMO=false;
+        console.log('GamSkillHub: LIVE mode — Supabase connected ✅');
+      } else {
+        console.error('GamSkillHub: Supabase JS library NOT loaded! Check CDN script.');
+        DEMO=true;
+      }
     }
-  } catch(e){console.warn('Init error:',e);}
+  } catch(e){console.error('Init error:',e); DEMO=true;}
   
   // Check for saved session
   const saved = localStorage.getItem('gsh_admin');
@@ -1156,7 +1164,7 @@ function nav(p){
 
 /* ══ SKILLS ══ */
 async function loadSkills(){
-  if(DEMO) return;
+  if(!SB) return;
   try{
     const {data}=await SB.from('skill_categories').select('*').eq('is_active',true).order('name');
     if(data&&data.length) skills=data;
@@ -1389,7 +1397,7 @@ async function loadClientOrders(){
   box.innerHTML='<div class="sp"><div class="spin"></div></div>';
   let orders=[];
   try{
-    if(!DEMO&&SB&&clientUser){
+    if(SB&&clientUser){
       const {data}=await SB.from('orders').select('*,workers(name,phone,photo_url,location,shop_address)').eq('user_id',clientUser.id).order('created_at',{ascending:false});
       orders=data||[];
     }else{
@@ -1670,7 +1678,7 @@ async function submitApp(){
         const wh=getWE();
         if(wh.length)await SB.from('work_history').insert(wh.map(e=>({...e,worker_id:wk.id})));
       }catch(he){console.warn('work_history insert failed (table may not exist):',he.message);}
-    }else{console.warn('No Supabase — registration not saved');}
+    }else{toast('Connection error — registration NOT saved. Check your internet and try again.','er');btn.disabled=false;btn.textContent='Submit Application ✓';return;}
     document.getElementById('reg-ok').classList.add('on');
     document.querySelectorAll('.fstep').forEach(s=>s.classList.remove('on'));
     document.querySelectorAll('.snd').forEach(s=>{s.classList.remove('ac');s.classList.add('dn');});
@@ -1707,7 +1715,7 @@ async function tryLogin(){
     let adm = null;
     
     // 1. Try Supabase first if available
-    if (!DEMO && SB) {
+    if (SB) {
       try {
         const { data, error } = await SB.from('admin_users').select('*').eq('email', em).eq('password', pw).maybeSingle();
         if (!error && data) adm = data;
@@ -1745,23 +1753,44 @@ function adminOut(){adminUser=null;localStorage.removeItem('gsh_admin');nav('hom
 /* ══ ADMIN DASHBOARD ══ */
 async function loadAdmin(){
   adminW=[];allOrders=[];
+  console.log('loadAdmin called — SB:', !!SB, 'DEMO:', DEMO);
   try{
     if(SB){
-      const {data:wd}=await queryWorkers(SB.from('workers').order('created_at',{ascending:false}));
+      console.log('Fetching workers from Supabase...');
+      const {data:wd,error:werr}=await queryWorkers(SB.from('workers').order('created_at',{ascending:false}));
+      console.log('Workers query result:', wd?.length, 'workers, error:', werr?.message);
       adminW=(wd||[]).map(mapWorker);
+      console.log('adminW populated:', adminW.length, 'workers, pending:', adminW.filter(w=>w.status==='pending').length);
       try{
         const {data:od}=await SB.from('orders').select('*,workers(name,phone)').order('created_at',{ascending:false});
         allOrders=od||[];
+        console.log('Orders loaded:', allOrders.length);
       }catch(oe){console.warn('Orders query failed:',oe.message);allOrders=[];}
     }else{
-      // True DEMO mode — no Supabase configured at all
+      console.warn('loadAdmin: No Supabase (SB=null) — loading demo data');
       await wait(200);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));
     }
-  }catch(e){console.warn('loadAdmin error:',e.message);}
+  }catch(e){console.error('loadAdmin error:',e);}
   adminW.forEach(w=>{WC[w.id]=w;});
   document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
   document.getElementById('ocnt').textContent=allOrders.filter(o=>!['completed','cancelled'].includes(o.status)).length;
+  // Update mode indicator
+  updateModeIndicator();
   renderAdmin();
+}
+function updateModeIndicator(){
+  const el=document.getElementById('mode-ind');
+  if(el){
+    if(SB && !DEMO){
+      el.innerHTML='🟢 LIVE';
+      el.style.color='var(--ok)';
+      el.title='Connected to Supabase — showing real data';
+    }else{
+      el.innerHTML='🟡 DEMO';
+      el.style.color='var(--am)';
+      el.title='Demo mode — showing sample data only';
+    }
+  }
 }
 
 function aTab(t,el){
@@ -2012,7 +2041,7 @@ async function _updateWorkerStatus(id, newStatus, btnId){
     renderAdmin();
     fetchWorkers();
     // Show result toast only if DB update succeeded (or we're in DEMO mode)
-    if(dbOk || DEMO){
+    if(dbOk){
       if(newStatus==='approved'){
         toast('Worker approved! ✓','ok');
         if(pass && w){
@@ -2134,7 +2163,7 @@ async function confirmPayment() {
     };
 
     let orderId;
-    if (!DEMO && SB) {
+    if (SB) {
       const { data, error } = await SB.from('orders').insert([orderPayload]).select().single();
       if (error) throw error;
       orderId = data.id;
@@ -2162,7 +2191,7 @@ async function confirmPayment() {
       reference: payRef,
     };
 
-    if (!DEMO && SB) {
+    if (SB) {
       await SB.from('payments').insert([paymentPayload]);
     } else {
       paymentPayload.id = 'pay' + Date.now();
@@ -2206,18 +2235,18 @@ function renderWorkerEarnings() {
   if (!workerUser) return;
 
   // Calculate earnings from demo data
-  const completedOrders = (DEMO ? DO : allOrders).filter(o =>
+  const completedOrders = allOrders.filter(o =>
     o.worker_id === workerUser.id && o.status === 'completed'
   );
   const totalEarned = completedOrders.reduce((sum, o) => sum + (Number(o.service_fee) || 0) - (Number(o.commission) || 0), 0);
-  const activeOrders = (DEMO ? DO : allOrders).filter(o =>
+  const activeOrders = allOrders.filter(o =>
     o.worker_id === workerUser.id && ['assigned', 'accepted', 'worker_arrived'].includes(o.status)
   );
   const pendingPayout = activeOrders.reduce((sum, o) => sum + (Number(o.service_fee) || 0) - (Number(o.commission) || 0), 0);
   const availableBalance = totalEarned - workerEarnings.pending_payout;
 
   // Build transaction history
-  (DEMO ? DO : allOrders).filter(o => o.worker_id === workerUser.id && (o.status === 'completed' || o.payment_status)).forEach(o => {
+  allOrders.filter(o => o.worker_id === workerUser.id && (o.status === 'completed' || o.payment_status)).forEach(o => {
     workerEarnings.transactions.push({
       id: o.id, desc: (o.skill_needed || 'Service') + ' - ' + (o.client_name || 'Client'),
       date: o.completed_at || o.created_at, amount: (Number(o.service_fee) || 0) - (Number(o.commission) || 0),
@@ -2290,7 +2319,7 @@ async function submitPayout() {
   };
 
   try {
-    if (!DEMO && SB) {
+    if (SB) {
       await SB.from('payments').insert([payoutPayload]);
     } else {
       payoutPayload.id = 'po' + Date.now();
@@ -2309,7 +2338,7 @@ async function submitPayout() {
 async function renderPayments(box) {
   let payments = [];
   try {
-    if (!DEMO && SB) {
+    if (SB) {
       const { data } = await SB.from('payments').select('*').order('created_at', { ascending: false });
       payments = data || [];
     } else {
@@ -2393,7 +2422,7 @@ async function renderPayments(box) {
 async function releasePayment(orderId, payId) {
   if (!confirm('Release payment to worker? This cannot be undone.')) return;
   try {
-    if (!DEMO && SB) {
+    if (SB) {
       await SB.from('payments').update({ status: 'released', released_at: new Date().toISOString() }).eq('id', payId);
       await SB.from('orders').update({ payment_status: 'released' }).eq('id', orderId);
     } else {
@@ -2410,7 +2439,7 @@ async function releasePayment(orderId, payId) {
 async function refundPayment(orderId, payId) {
   if (!confirm('Refund this payment to the client?')) return;
   try {
-    if (!DEMO && SB) {
+    if (SB) {
       await SB.from('payments').update({ status: 'refunded', refunded_at: new Date().toISOString() }).eq('id', payId);
       await SB.from('orders').update({ payment_status: 'refunded', status: 'cancelled' }).eq('id', orderId);
     } else {
@@ -2426,7 +2455,7 @@ async function refundPayment(orderId, payId) {
 
 async function approvePayout(payId) {
   try {
-    if (!DEMO && SB) {
+    if (SB) {
       await SB.from('payments').update({ status: 'approved', approved_at: new Date().toISOString() }).eq('id', payId);
     } else {
       const p = allPayments.find(x => x.id === payId);
@@ -2440,7 +2469,7 @@ async function approvePayout(payId) {
 async function rejectPayout(payId) {
   if (!confirm('Reject this payout request?')) return;
   try {
-    if (!DEMO && SB) {
+    if (SB) {
       await SB.from('payments').update({ status: 'rejected' }).eq('id', payId);
     } else {
       const p = allPayments.find(x => x.id === payId);
@@ -2520,7 +2549,7 @@ async function loginWorkerModal(){
   if(pw && pw.length !== 4){toast('PIN must be 4 digits.','er');return;}
   
   try {
-    if(!DEMO && SB) {
+    if(SB) {
       // If PIN entered, try phone+PIN (password) match
       if(pw && pw.length===4){
         const {data, error} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('password', pw).maybeSingle());
