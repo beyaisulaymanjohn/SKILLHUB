@@ -1076,7 +1076,19 @@ async function init() {
   try {
     if(CFG.supabaseUrl!=='YOUR_SUPABASE_URL'){
       SB=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
-      DEMO=false;
+      // Test if Supabase is actually reachable and has RLS policies
+      try {
+        const {error:testErr} = await SB.from('workers').select('id').limit(1);
+        if(testErr && testErr.message.includes('does not exist')){
+          console.warn('Workers table not found — falling back to DEMO mode');
+          SB=null; DEMO=true;
+        } else {
+          DEMO=false;
+        }
+      } catch(te){
+        console.warn('Supabase unreachable — falling back to DEMO mode');
+        SB=null; DEMO=true;
+      }
     }
   } catch(e){console.warn('Demo mode');}
   
@@ -1912,13 +1924,22 @@ async function _updateWorkerStatus(id, newStatus, btnId){
     if(newStatus === 'approved'){
       pass = Math.random().toString(36).slice(-8);
     }
+    let dbOk = true; // track whether DB update succeeded
     // Try Supabase first
     if(!DEMO&&SB){
       const {error:err1}=await SB.from('workers').update({status:newStatus}).eq('id',id);
       if(err1){
         console.warn('Supabase update failed:', err1.message);
-        // Don't throw — fall through to local update for demo purposes
-        toast('Note: Database not updated. Contact admin for DB access.','er');
+        dbOk = false;
+        // Check if it's an RLS (permissions) error — offer graceful fallback
+        const msg = (err1.message || '').toLowerCase();
+        if(msg.includes('policy') || msg.includes('permission') || msg.includes('row-level') || msg.includes('denied')){
+          toast('Database permission error. Worker updated locally only (will revert on refresh). Run the RLS fix SQL in Supabase.','er');
+        } else {
+          toast('Database error: ' + err1.message,'er');
+        }
+        // Nullify pass so we don't show fake credentials for an unsaved approval
+        pass = null;
       } else {
         // DB update succeeded — also try to set password for newly approved workers
         if(pass){
@@ -1927,7 +1948,7 @@ async function _updateWorkerStatus(id, newStatus, btnId){
         }
       }
     }
-    // Always update local state so the UI responds
+    // Always update local state so the UI responds immediately
     const w=adminW.find(w=>w.id===id);
     if(w) w.status=newStatus;
     // Also update DW so demo data stays in sync
@@ -1936,18 +1957,26 @@ async function _updateWorkerStatus(id, newStatus, btnId){
     document.getElementById('pcnt').textContent=adminW.filter(w=>w.status==='pending').length;
     renderAdmin();
     fetchWorkers();
-    if(newStatus==='approved'){
-      toast('Worker approved! ✓','ok');
-      if(pass && w){
-        console.log('NOTIFICATION: Worker ' + w.name + ' approved. Credentials: ' + w.phone + ' / ' + pass);
-        alert('WORKER APPROVED!\n\nPlease send these credentials to the worker:\nPhone: ' + w.phone + '\nPassword: ' + pass);
+    // Show result toast only if DB update succeeded (or we're in DEMO mode)
+    if(dbOk || DEMO){
+      if(newStatus==='approved'){
+        toast('Worker approved! ✓','ok');
+        if(pass && w){
+          console.log('NOTIFICATION: Worker ' + w.name + ' approved. Credentials: ' + w.phone + ' / ' + pass);
+          alert('WORKER APPROVED!\n\nPlease send these credentials to the worker:\nPhone: ' + w.phone + '\nPassword: ' + pass);
+        }
+      } else if(newStatus==='rejected'){
+        toast('Worker rejected/suspended','ok');
+      } else {
+        toast('Worker status updated','ok');
       }
-    } else {
-      toast('Worker ' + (newStatus==='rejected'?'rejected':'updated'),'er');
     }
+    // If DB failed, the error toast was already shown above — don't double-toast
   }catch(e){
     console.error('updateWorkerStatus error:', e);
     toast('Failed: ' + (e.message || 'Unknown error'),'er');
+    // Re-enable button on failure so user can retry
+    if(btn){ btn.disabled=false; btn.style.opacity='1'; btn.textContent=newStatus==='approved'?'✓ Approve':newStatus==='rejected'?'✕ Reject':'↩ Restore'; }
   }
 }
 
