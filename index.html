@@ -1905,15 +1905,18 @@ async function setStatus(id,status){
   try{
     let pass = null;
     if(status === 'approved'){
-      // Generate a simple password for the worker
       pass = Math.random().toString(36).slice(-8);
     }
 
     if(!DEMO&&SB){
-      const update = {status};
-      if(pass) update.password = pass;
-      const {error}=await SB.from('workers').update(update).eq('id',id);
-      if(error)throw error;
+      // Update status first (this is the critical part)
+      const {error}=await SB.from('workers').update({status}).eq('id',id);
+      if(error) throw error;
+      // Try to set password separately — if column doesn't exist, just skip it
+      if(pass){
+        try{ await SB.from('workers').update({password:pass}).eq('id',id); }
+        catch(pe){ console.warn('Password column not available, skipping auto-password'); pass=null; }
+      }
     }
     
     const w=adminW.find(w=>w.id===id);
@@ -1924,15 +1927,18 @@ async function setStatus(id,status){
     fetchWorkers();
     
     if(status==='approved'){
-      const msg = 'Worker approved! ✓' + (pass ? ' Temporary Password: ' + pass : '');
-      toast(msg, 'ok');
-      // In a real app, you would send this via SMS/Email API here
-      console.log('NOTIFICATION: Worker ' + w?.name + ' approved. Credentials: ' + w?.phone + ' / ' + pass);
-      if(pass) alert('WORKER APPROVED!\n\nPlease send these credentials to the worker:\nPhone: ' + w?.phone + '\nPassword: ' + pass);
+      toast('Worker approved! ✓','ok');
+      if(pass){
+        console.log('NOTIFICATION: Worker ' + w?.name + ' approved. Credentials: ' + w?.phone + ' / ' + pass);
+        alert('WORKER APPROVED!\n\nPlease send these credentials to the worker:\nPhone: ' + w?.phone + '\nPassword: ' + pass);
+      }
     } else {
-      toast('Worker rejected', 'er');
+      toast('Worker rejected','er');
     }
-  }catch(e){toast('Failed.','er');}
+  }catch(e){
+    console.error('setStatus error:', e);
+    toast('Failed: ' + (e.message || 'Unknown error'),'er');
+  }
 }
 
 /* ══ PAYMENT FUNCTIONS ══ */

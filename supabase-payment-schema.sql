@@ -3,6 +3,11 @@
 -- Run this SQL in your Supabase SQL Editor
 -- ══════════════════════════════════════════════════════════
 
+-- ─── 0. Add password column to workers table ───
+-- Needed for worker login when admin approves them
+ALTER TABLE workers
+  ADD COLUMN IF NOT EXISTS password TEXT;
+
 -- ─── 1. Add payment columns to existing 'orders' table ───
 ALTER TABLE orders
   ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'cash',
