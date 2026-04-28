@@ -1071,6 +1071,43 @@ let pendingPayment = null; // {orderId, workerId, skill, clientName, clientPhone
 let selectedPayMethod = 'wave';
 let workerEarnings = { balance: 0, total_earned: 0, pending_payout: 0, transactions: [] };
 
+/* ══ SUPABASE QUERY HELPER ══ */
+// Try full query with worker_skills/work_history joins first.
+// If those tables don't exist (400 error), fall back to simple workers query.
+let _fullJoinWorks = null; // cache result so we don't retry on every call
+async function queryWorkers(sbQuery){
+  if(!SB) return {data:null,error:'No Supabase'};
+  // Try full join query
+  try{
+    const result = await sbQuery.select('*,worker_skills(category_id),work_history(*)');
+    if(!result.error){
+      _fullJoinWorks = true;
+      return result;
+    }
+    // 400 likely means tables don't exist — fall back
+    console.warn('Full join query failed, trying simple query:', result.error.message);
+  }catch(e){
+    console.warn('Full join query threw, trying simple query:', e.message);
+  }
+  // Fallback: simple workers query without joins
+  try{
+    const result = await sbQuery.select('*');
+    _fullJoinWorks = false;
+    return result;
+  }catch(e2){
+    return {data:null,error:e2.message};
+  }
+}
+function mapWorker(w){
+  return {
+    ...w,
+    skills: _fullJoinWorks !== false
+      ? (w.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean)
+      : (w.skills||[]),
+    work_history: w.work_history||[]
+  };
+}
+
 /* ══ INIT ══ */
 async function init() {
   try {
@@ -1171,14 +1208,11 @@ async function fetchWorkers(search=''){
   box.innerHTML='<div class="sp"><div class="spin"></div></div>';
   try{
     if(!DEMO&&SB){
-      let q=SB.from('workers').select('*,worker_skills(category_id),work_history(*)').eq('status','approved');
+      let q=SB.from('workers').eq('status','approved');
       if(search) q=q.ilike('name','%'+search+'%');
-      const {data,error}=await q;
+      const {data,error}=await queryWorkers(q);
       if(error) throw error;
-      workers=(data||[]).map(w=>({...w,
-        skills:(w.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean),
-        work_history:w.work_history||[]
-      }));
+      workers=(data||[]).map(mapWorker);
     } else {
       await wait(280);
       workers=DW.filter(w=>w.status==='approved'&&(!search||
@@ -1430,9 +1464,9 @@ async function workerLogin(){
   const ph=g('wp-phone');if(!ph){toast('Enter your registered phone.','er');return;}
   try{
     if(!DEMO&&SB){
-      const {data,error}=await SB.from('workers').select('*,worker_skills(category_id),work_history(*)').eq('phone',ph).eq('status','approved').maybeSingle();
+      const {data,error}=await queryWorkers(SB.from('workers').eq('phone',ph).eq('status','approved').maybeSingle());
       if(error||!data){toast('Not found or not approved yet.','er');return;}
-      workerUser={...data,skills:(data.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean)};
+      workerUser=mapWorker(data);
     }else{
       await wait(280);
       workerUser=DW.find(w=>w.phone===ph&&w.status==='approved');
@@ -1626,12 +1660,16 @@ async function submitApp(){
       if(UF.id) payload.id_doc_url=await uploadFile(UF.id,'worker-docs',`${wId}/id`);
       const {data:wk,error}=await SB.from('workers').insert([payload]).select().single();
       if(error)throw error;
-      if(pickedSkills.length){
-        const rows=pickedSkills.map(s=>{const c=skills.find(x=>x.name===s);return c?{worker_id:wk.id,category_id:c.id}:null;}).filter(Boolean);
-        if(rows.length)await SB.from('worker_skills').insert(rows);
-      }
-      const wh=getWE();
-      if(wh.length)await SB.from('work_history').insert(wh.map(e=>({...e,worker_id:wk.id})));
+      try{
+        if(pickedSkills.length){
+          const rows=pickedSkills.map(s=>{const c=skills.find(x=>x.name===s);return c?{worker_id:wk.id,category_id:c.id}:null;}).filter(Boolean);
+          if(rows.length)await SB.from('worker_skills').insert(rows);
+        }
+      }catch(se){console.warn('worker_skills insert failed (table may not exist):',se.message);}
+      try{
+        const wh=getWE();
+        if(wh.length)await SB.from('work_history').insert(wh.map(e=>({...e,worker_id:wk.id})));
+      }catch(he){console.warn('work_history insert failed (table may not exist):',he.message);}
     }else await wait(700);
     document.getElementById('reg-ok').classList.add('on');
     document.querySelectorAll('.fstep').forEach(s=>s.classList.remove('on'));
@@ -1707,8 +1745,8 @@ function adminOut(){adminUser=null;localStorage.removeItem('gsh_admin');nav('hom
 async function loadAdmin(){
   try{
     if(!DEMO&&SB){
-      const {data:wd}=await SB.from('workers').select('*,worker_skills(category_id),work_history(*)').order('created_at',{ascending:false});
-      adminW=(wd||[]).map(w=>({...w,skills:(w.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean),work_history:w.work_history||[]}));
+      const {data:wd}=await queryWorkers(SB.from('workers').order('created_at',{ascending:false}));
+      adminW=(wd||[]).map(mapWorker);
       const {data:od}=await SB.from('orders').select('*,workers(name,phone),users(name,phone)').order('created_at',{ascending:false});
       allOrders=od||[];
     }else{await wait(200);adminW=[...DW];allOrders=[...DO].map(o=>({...o,workers:o.worker_id?DW.find(w=>w.id===o.worker_id):null}));}
@@ -2466,10 +2504,10 @@ async function loginWorkerModal(){
   
   try {
     if(!DEMO && SB) {
-      const {data, error} = await SB.from('workers').select('*,worker_skills(category_id),work_history(*)').eq('phone', ph).eq('password', pw).maybeSingle();
+      const {data, error} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('password', pw).maybeSingle());
       if(error) throw error;
       if(!data) { if(err) err.style.display='block'; return; }
-      workerUser = {...data, skills:(data.worker_skills||[]).map(ws=>skills.find(c=>c.id===ws.category_id)?.name).filter(Boolean)};
+      workerUser = mapWorker(data);
     } else {
       await wait(280);
       workerUser = DW.find(w => w.phone === ph && w.status === 'approved');
