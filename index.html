@@ -1917,7 +1917,10 @@ async function delSkill(id){
 async function renderAdmins(box){
   let admins=[];
   try{
-    if(!DEMO&&SB){const {data}=await SB.from('admin_users').select('*').order('created_at');admins=data||[];}
+    if(!DEMO&&SB){
+      try{const {data}=await SB.from('admin_users').select('*').order('created_at');admins=data||[];}
+      catch(se){console.warn('admin_users query failed (no RLS policy?):',se.message);admins=[{id:'a1',name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin',created_at:new Date().toISOString()}];}
+    }
     else admins=[{id:'a1',name:'Agency Admin',email:'admin@gamskillhub.gm',role:'super_admin',created_at:new Date().toISOString()}];
   }catch(e){admins=[];}
   box.innerHTML=`<div class="shtit">ADMIN USERS</div>
@@ -1940,7 +1943,10 @@ async function addAdmin(){
   const nm=g('na-nm'),em=g('na-em'),pw=g('na-pw');
   if(!nm||!em||!pw){toast('All fields required.','er');return;}
   try{
-    if(!DEMO&&SB){const {error}=await SB.from('admin_users').insert([{name:nm,email:em,password:pw,role:'admin'}]);if(error)throw error;}
+    if(!DEMO&&SB){
+      try{const {error}=await SB.from('admin_users').insert([{name:nm,email:em,password:pw,role:'admin'}]);if(error)throw error;}
+      catch(ie){toast('DB error: admin_users table may lack INSERT policy. Run the SQL fix.','er');return;}
+    }
     toast('"'+nm+'" added as admin ✓','ok');renderAdmins(document.getElementById('adm-content'));
   }catch(e){toast('Failed. Email may exist already.','er');}
 }
@@ -1948,7 +1954,10 @@ async function addAdmin(){
 async function delAdmin(id){
   if(!confirm('Remove this admin user?'))return;
   try{
-    if(!DEMO&&SB)await SB.from('admin_users').delete().eq('id',id);
+    if(!DEMO&&SB){
+      try{await SB.from('admin_users').delete().eq('id',id);}
+      catch(de){toast('DB error: admin_users table may lack DELETE policy.','er');return;}
+    }
     toast('Removed.','ok');renderAdmins(document.getElementById('adm-content'));
   }catch(e){toast('Failed.','er');}
 }
@@ -2500,16 +2509,27 @@ async function loginWorkerModal(){
   const ph = document.getElementById('wp-phone-modal').value.trim();
   const pw = document.getElementById('wp-pw-modal').value.trim();
   const err = document.getElementById('lerr');
-  if(!ph || !pw){toast('Phone and password required.','er');return;}
+  if(!ph){toast('Enter your phone number.','er');return;}
   
   try {
     if(!DEMO && SB) {
-      const {data, error} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('password', pw).maybeSingle());
-      if(error) throw error;
-      if(!data) { if(err) err.style.display='block'; return; }
-      workerUser = mapWorker(data);
+      // If password entered, try phone+password first
+      if(pw){
+        const {data, error} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('password', pw).maybeSingle());
+        if(!error && data){
+          workerUser = mapWorker(data);
+        }
+      }
+      // Fallback: phone-only login (many workers have no password set)
+      if(!workerUser){
+        const {data: data2, error: err2} = await queryWorkers(SB.from('workers').eq('phone', ph).eq('status','approved').maybeSingle());
+        if(err2) throw err2;
+        if(!data2) { if(err) err.style.display='block'; return; }
+        workerUser = mapWorker(data2);
+      }
     } else {
       await wait(280);
+      // Try phone+password match in demo data
       workerUser = DW.find(w => w.phone === ph && w.status === 'approved');
       if (!workerUser) { if(err) err.style.display='block'; return; }
     }
@@ -2518,8 +2538,10 @@ async function loginWorkerModal(){
     document.getElementById('wp-auth').style.display='none';
     document.getElementById('wp-dash').style.display='block';
     updAvail();loadWpOrders();
+    closeLogin();
     toast('Welcome back, ' + workerUser.name, 'ok');
   } catch(e) {
+    console.warn('Worker login error:', e);
     if(err) err.style.display='block';
   }
 }
