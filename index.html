@@ -1298,7 +1298,17 @@ function openProfile(id){
       💳 <strong>Payment Info:</strong> Secure payments via Wave or Bank Transfer. Escrow protection enabled.<br><span style="font-size:10px;color:var(--mt)">Service fee: ${PAY_CFG.currency}${(SKILL_PRICES[(w.skills||[])[0]]||DEFAULT_PRICE).toLocaleString()}.00</span>
     </div>`;
   const ids=document.getElementById('mIdSec');
-  if(w.id_doc_url){document.getElementById('mIdLink').href=w.id_doc_url==='has_id'?'#':w.id_doc_url;ids.style.display='block';}else ids.style.display='none';
+  if(w.id_doc_url){
+    ids.style.display='block';
+    const idLink=document.getElementById('mIdLink');
+    idLink.href=w.id_doc_url==='has_id'?'#':w.id_doc_url;
+    // If it's a base64 image, show preview
+    if(w.id_doc_url.startsWith('data:')){
+      idLink.innerHTML='✅ <span style="font-size:11px">ID Verified (embedded)</span>';
+    } else {
+      idLink.innerHTML='✅ View ID Document';
+    }
+  } else ids.style.display='none';
   document.getElementById('mTags').innerHTML=(w.skills||[]).map(s=>`<span class="tag">${x(s)}</span>`).join('')||'<span style="color:var(--mt)">None listed</span>';
   const ph=document.getElementById('mPort');
   const wh=w.work_history||[];
@@ -1483,7 +1493,8 @@ async function workerLogin(){
     document.getElementById('wp-auth').style.display='none';
     document.getElementById('wp-dash').style.display='block';
     updAvail();loadWpOrders();
-  }catch(e){toast('Login failed.','er');}
+    toast('Welcome back, ' + workerUser.name, 'ok');
+  }catch(e){toast('Login failed: '+(e.message||'Check your phone number.'),'er');}
 }
 function workerOut(){workerUser=null;document.getElementById('wp-auth').style.display='block';document.getElementById('wp-dash').style.display='none';}
 function updAvail(){
@@ -1594,25 +1605,26 @@ function dzd(e,id,t){e.preventDefault();dzout(id);const f=e.dataTransfer.files;i
 
 async function uploadFile(file,bucket,path){
   if(!SB||!file)return null;
+  // Try Supabase Storage first
   try{
     const {error}=await SB.storage.from(bucket).upload(path,file,{upsert:true});
-    if(error){
-      // If bucket doesn't exist, create it
-      if(error.message && (error.message.includes('bucket') || error.message.includes('not found') || error.statusCode===404)){
-        console.warn('Storage bucket "'+bucket+'" does not exist. Creating...');
-        try{
-          const {error:be}=await SB.storage.createBucket(bucket,{public:true,fileSizeLimit:5242880,allowedMimeTypes:['image/*','application/pdf']});
-          if(be){console.warn('Cannot create bucket (need service_role key):',be.message);return null;}
-          // Retry upload after creating bucket
-          const {error:re}=await SB.storage.from(bucket).upload(path,file,{upsert:true});
-          if(re){console.warn('Upload retry failed:',re.message);return null;}
-          return SB.storage.from(bucket).getPublicUrl(path).data?.publicUrl||null;
-        }catch(bce){console.warn('Bucket creation failed:',bce.message);return null;}
-      }
-      console.warn('Upload fail:',error.message);return null;
+    if(!error){
+      const url=SB.storage.from(bucket).getPublicUrl(path).data?.publicUrl||null;
+      if(url){console.log('Uploaded to storage:',url);return url;}
     }
-    return SB.storage.from(bucket).getPublicUrl(path).data?.publicUrl||null;
-  }catch(e){console.warn('Upload fail:',e.message);return null;}
+    console.warn('Storage upload failed:',error?.message,'— falling back to base64');
+  }catch(e){console.warn('Storage upload error:',e.message,'— falling back to base64');}
+  // Fallback: convert to base64 data URL (stored directly in DB column)
+  try{
+    const dataUrl = await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=()=>reject(new Error('FileReader failed'));
+      reader.readAsDataURL(file);
+    });
+    console.log('File stored as base64 ('+Math.round(file.size/1024)+'KB)');
+    return dataUrl;
+  }catch(e2){console.warn('Base64 fallback failed:',e2.message);return null;}
 }
 
 /* ══ REGISTRATION ══ */
@@ -1811,10 +1823,12 @@ function renderAWorkers(box){
   box.innerHTML=list.map(w=>{
     const wh=(w.work_history||[]);
     const hasCerts=w.cert_urls&&w.cert_urls.length||w.cert_count>0;
+    const hasPhoto=!!w.photo_url;
+    const hasId=!!w.id_doc_url;
     return `
     <div class="acard" style="flex-direction:column;align-items:stretch;gap:12px">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <div class="aav">${w.photo_url?`<img src="${x(w.photo_url)}" onerror="this.style.display='none'">`:''} ${initials(w.name)}</div>
+        <div class="aav" style="${hasPhoto?'padding:0':''}">${hasPhoto?`<img src="${x(w.photo_url)}" onerror="this.parentElement.style.padding='';this.style.display='none'">`:(initials(w.name))}</div>
         <div class="ainfo">
           <div class="anm">${x(w.name)}</div>
           <div class="amet">
@@ -1829,11 +1843,12 @@ function renderAWorkers(box){
         <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Email</strong><br>${x(w.email)||'<span style="color:var(--mt)">Not provided</span>'}</div>
         <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Shop / Work Address</strong><br>${x(w.shop_address)||'<span style="color:var(--mt)">Not provided</span>'}</div>
         <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Experience</strong><br>${w.years_experience||0} years · ${w.completed_jobs||0} jobs done</div>
-        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">ID Document</strong><br>${w.id_doc_url?`<a href="${x(w.id_doc_url)}" target="_blank" style="color:var(--ok)">✅ View ID</a>`:'<span style="color:var(--er)">⚠ No ID uploaded</span>'}</div>
-        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Photo</strong><br>${w.photo_url?`<a href="${x(w.photo_url)}" target="_blank" style="color:var(--ok)">✅ View Photo</a>`:'<span style="color:var(--er)">⚠ No photo</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">ID Document</strong><br>${hasId?`<a href="${x(w.id_doc_url)}" target="_blank" style="color:var(--ok)">✅ View ID</a>${w.id_doc_url.startsWith('data:')?' <span style="color:var(--mt);font-size:9px">(embedded)</span>':''}`:'<span style="color:var(--er)">⚠ No ID uploaded</span>'}</div>
+        <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Photo</strong><br>${hasPhoto?`<a href="${x(w.photo_url)}" target="_blank" style="color:var(--ok)">✅ View Photo</a>${w.photo_url.startsWith('data:')?' <span style="color:var(--mt);font-size:9px">(embedded)</span>':''}`:'<span style="color:var(--er)">⚠ No photo</span>'}</div>
         <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Certifications</strong><br>${hasCerts?'✅ '+hasCerts+' on file':'<span style="color:var(--mt)">None uploaded</span>'}</div>
         <div><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Rating</strong><br>★ ${parseFloat(w.rating||5).toFixed(1)} (${w.rating_count||0} reviews)</div>
       </div>
+      ${(hasPhoto||hasId)?`<div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px;background:var(--sur);border:1px solid var(--b);border-radius:7px">${hasPhoto?`<div style="text-align:center"><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Photo</div><img src="${x(w.photo_url)}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid var(--am)" onerror="this.parentElement.style.display='none'"></div>`:''}${hasId?`<div style="text-align:center"><div style="font-size:9px;color:var(--mt);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">ID Document</div><img src="${x(w.id_doc_url)}" style="max-width:120px;max-height:80px;border-radius:8px;border:2px solid var(--ok)" onerror="this.outerHTML='<a href=\\'${x(w.id_doc_url)}\\' target=\\'_blank\\' style=\\'color:var(--ok);font-size:12px\\'>📄 Open ID Document</a>'"></div>`:''}</div>`:''}
       ${w.bio?`<div style="font-size:12px;color:var(--td);line-height:1.6;padding:8px 10px;background:var(--sur);border:1px solid var(--b);border-radius:7px"><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Bio</strong><br>${x(w.bio)}</div>`:''}
       ${wh.length?`<div style="font-size:11px;color:var(--td)"><strong style="color:var(--mt);font-size:9px;text-transform:uppercase;letter-spacing:1px">Work History</strong><br>${wh.map(h=>`<span style="display:inline-block;background:var(--sur);border:1px solid var(--b);border-radius:6px;padding:4px 8px;margin:3px 3px 0 0;font-size:10px">🔨 ${x(h.title)}${h.description?' — '+x(h.description):''}</span>`).join('')}</div>`:''}
       <div class="aacts">
@@ -1869,18 +1884,25 @@ function renderAOrders(box){
 
 function renderAssign(box){
   const unassigned=allOrders.filter(o=>['pending','assigned'].includes(o.status));
+  const allW=adminW.filter(w=>w.status==='approved'||w.status==='pending');
   const approved=adminW.filter(w=>w.status==='approved');
+  if(!allW.length){
+    box.innerHTML=`<div class="empty"><div class="empi">👷</div><h3>No Workers Available</h3><p>No approved or pending workers to assign. Approve workers from the Pending tab first.</p></div>`;
+    return;
+  }
   box.innerHTML=`<div class="shtit">MANUALLY ASSIGN ORDERS</div>
-    ${!unassigned.length?`<div class="empty"><div class="empi">✅</div><h3>No Pending Orders</h3><p>All orders assigned.</p></div>`:
+    ${!unassigned.length?`<div class="empty"><div class="empi">✅</div><h3>No Pending Orders</h3><p>All orders have been assigned or there are no orders yet. Orders placed by clients will appear here.</p></div>`:
     unassigned.map(o=>`<div class="orow">
       <div class="ort"><div class="ors">${x(o.skill_needed)}</div><span class="sta sta-${o.status}">${o.status}</span></div>
-      <div class="orm"><span>👤 ${x(o.client_name)}</span><span>📍 ${x(o.client_address)}</span><span>📅 ${fd(o.created_at)}</span></div>
+      <div class="orm"><span>👤 ${x(o.client_name)}</span><span>📞 ${x(o.client_phone||'')}</span><span>📍 ${x(o.client_address)}</span><span>📅 ${fd(o.created_at)}</span></div>
       ${o.description?`<div style="font-size:12px;color:var(--td);margin-bottom:9px">${x(o.description)}</div>`:''}
+      ${o.service_fee?`<div style="font-size:11px;color:var(--am);margin-bottom:7px">💰 D${Number(o.service_fee).toLocaleString()}</div>`:''}
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <select class="asel" id="asel-${o.id}">
           <option value="">Select worker…</option>
-          <optgroup label="— Matching Skill —">${approved.filter(w=>(w.skills||[]).some(s=>s.toLowerCase()===o.skill_needed.toLowerCase())).map(w=>`<option value="${w.id}">${x(w.name)} · ${x(w.location||'')}</option>`).join('')}</optgroup>
-          <optgroup label="— All Approved —">${approved.map(w=>`<option value="${w.id}">${x(w.name)} · ${(w.skills||[]).map(x).join(', ')}</option>`).join('')}</optgroup>
+          <optgroup label="— Matching Skill —">${allW.filter(w=>(w.skills||[]).some(s=>s.toLowerCase()===o.skill_needed.toLowerCase())).map(w=>`<option value="${w.id}">${x(w.name)} · ${x(w.location||'')}${w.status==='pending'?' (Pending)':''}</option>`).join('')}</optgroup>
+          <optgroup label="— All Approved Workers —">${approved.map(w=>`<option value="${w.id}">${x(w.name)} · ${(w.skills||[]).map(x).join(', ')}</option>`).join('')}</optgroup>
+          ${approved.length!==allW.length?`<optgroup label="— Pending Workers —">${adminW.filter(w=>w.status==='pending').map(w=>`<option value="${w.id}">${x(w.name)} · ${(w.skills||[]).map(x).join(', ')} [PENDING]</option>`).join('')}</optgroup>`:''}
         </select>
         <button class="asm ag" onclick="doAssign('${o.id}')">Assign →</button>
       </div>
@@ -2573,11 +2595,11 @@ async function loginWorkerModal(){
     updAvail();loadWpOrders();
     toast('Welcome back, ' + workerUser.name, 'ok');
     closeLogin();
+    nav('wportal');
   } catch(e) {
     if(err) err.style.display='block';
     console.error('Worker login error:', e);
   }
-}
 
 /* ══ HIDDEN ADMIN SHORTCUT ══ */
 document.addEventListener('keydown',function(e){
