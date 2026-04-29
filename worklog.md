@@ -56,3 +56,22 @@ Stage Summary:
 - Commit: 81458b1 pushed to main branch
 - All critical workflow bugs fixed
 - Application ready for internal testing toward June 1st launch
+---
+Task ID: 1
+Agent: main
+Task: Fix 4 reported bugs: worker login, admin assignment, document display, and GitHub Pages deployment
+
+Work Log:
+- Analyzed index.html (2608 lines) and identified root causes for all 4 issues
+- Fix 1 (Worker Login): loginWorkerModal() was missing nav('wportal') after successful login — user stayed on home page with hidden dashboard
+- Fix 2 (Admin Assignment): renderAssign() only showed 'approved' workers — now also shows 'pending' workers and added helpful empty state messages
+- Fix 3 (Document Display): uploadFile() failed silently when Supabase Storage buckets don't exist — added base64 data URL fallback so files are always stored
+- Fix 4 (GitHub Pages): SKILLHUB was a git submodule causing GitHub Actions checkout to fail — removed embedded .git, converted to regular directory
+- Also improved admin worker cards to show inline photo/ID thumbnails
+- Added .nojekyll file for proper GitHub Pages rendering
+
+Stage Summary:
+- All 4 bugs fixed and deployed to https://beyaisulaymanjohn.github.io/SKILLHUB/
+- GitHub Pages status changed from "errored" to active after submodule fix
+- Key files modified: index.html, .nojekyll
+- Commits: fe97df1 (remove submodule), d2f566a (add as regular dir)
